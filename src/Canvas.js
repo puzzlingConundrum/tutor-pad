@@ -31,9 +31,8 @@ export class Canvas extends React.Component {
         this.eventPlayer = new EventPlayer();
     }
 
-    tick() {
+    updateFrame() {
         this.ms += 5;
-        //console.log(this.ms)
 
         let ctx = this.canvasRef.current.getContext('2d');
 
@@ -54,7 +53,7 @@ export class Canvas extends React.Component {
     }
 
     componentDidMount() {
-        this.interval = setInterval(() => this.tick(), 1);
+        this.interval = setInterval(() => this.updateFrame(), 1);
     }
 
     componentWillUnmount() {

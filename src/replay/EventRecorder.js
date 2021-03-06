@@ -19,7 +19,7 @@ export default class EventRecorder {
         this.sendTextToServer();
     }
 
-    toString() {
+    eventArraytoString() {
         let stringData = ""
 
         for (let event of this.eventArray) {
@@ -34,8 +34,18 @@ export default class EventRecorder {
         return stringData;
     }
 
-    setEventFromText(text) {
+    StringToEventArray(text) {
+        let eventArray = [];
 
+        let lines = text.split('\n');
+        for (let line of lines) {
+            let parts = line.split(':');
+            let state = JSON.parse(parts[1]);
+            eventArray.push(new CanvasEvent(parts[0]));
+        }
+        this.eventArray = eventArray;
+
+        return eventArray;
     }
 
     sendTextToServer() {
@@ -52,7 +62,7 @@ export default class EventRecorder {
         xhr.open('POST', '/api/v1/say-something');
 
         var data = new FormData();
-        data.append("data", this.toString());
+        data.append("data", this.eventArraytoString());
 
         // send the request
         xhr.send(data);
