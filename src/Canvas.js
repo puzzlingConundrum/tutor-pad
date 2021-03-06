@@ -12,8 +12,8 @@ export class Canvas extends React.Component {
         this.state = {
             drawing: false,
             obj: [],
-            initMousePos: [],
-            finalMousePos: [],
+            initMousePos: [], // 0: x, 1: y
+            finalMousePos: [], // 0: x, 1: y
             type: 'none'
         };
         this.canvasRef = React.createRef();
@@ -32,7 +32,7 @@ export class Canvas extends React.Component {
 
     mouseDown(e) {
         this.setState({ drawing: true, initMousePos: [e.pageX, e.pageY - this.offset], finalMousePos: [] }, () => console.log(this.state));
-        console.log(this.state.type);
+        //console.log(this.state.type);
     }
 
     move(e) {
@@ -42,18 +42,20 @@ export class Canvas extends React.Component {
     }
 
     mouseUp(e) {
-        let initX, initY = this.state.initMousePos;
-        let finalX, finalY = this.state.finalMousePos;
+        let [initX, initY] = this.state.initMousePos;
+        let [finalX, finalY] = this.state.finalMousePos;
         let newObject;
+
+        // check currently selected type
         switch (this.state.type) {
             case 'square':
                 newObject = new Rectangle(initX, initY, finalX, finalY)
                 break;
             case 'circle':
-                newObject = new Circle();
+                newObject = new Circle(initX, initY, finalX, finalY);
                 break;
             case 'line':
-                newObject = new Line();
+                newObject = new Line(initX, initY, finalX, finalY);
                 break;
             default:
                 newObject = null;
@@ -61,18 +63,6 @@ export class Canvas extends React.Component {
         if (newObject) {
             this.setState({ drawing: false, obj: [...this.state.obj, newObject] });
         }
-    }
-
-    setSquare() {
-        this.setState({type: 'square', initMousePos: [], finalMousePos: []});
-    }
-
-    setCircle() {
-        this.setState({type: 'circle', initMousePos: [], finalMousePos: []});
-    }
-
-    setLine() {
-        this.setState({type: 'line', initMousePos: [], finalMousePos: []});
     }
 
     componentDidUpdate() {
@@ -83,6 +73,7 @@ export class Canvas extends React.Component {
 
         for (let o of this.state.obj) {
             o.draw(context);
+            console.log(o);
         }
 
         let initX = this.state.initMousePos[0];
@@ -100,6 +91,19 @@ export class Canvas extends React.Component {
                 (new Line(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
                 break;
         }
+    }
+
+    // Button onClick
+    setSquare() {
+        this.setState({type: 'square', initMousePos: [], finalMousePos: []});
+    }
+
+    setCircle() {
+        this.setState({type: 'circle', initMousePos: [], finalMousePos: []});
+    }
+
+    setLine() {
+        this.setState({type: 'line', initMousePos: [], finalMousePos: []});
     }
 
     render() {
