@@ -1,11 +1,10 @@
-import logo from './logo.svg';
 import './App.css';
 import {Canvas} from './Canvas.js';
 
-function App() {
+function App() {  
   return (
     <div className="App">
-      <Canvas width={2000} height={2000}/>
+      <Canvas width={2000} height={2000} />
     </div>
   );
 }

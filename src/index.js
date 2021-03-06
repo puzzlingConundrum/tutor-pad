@@ -3,10 +3,15 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { Canvas } from './Canvas.js'
+import { Form, Navbar, Nav, ButtonGroup, ToggleButton } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { BsSquare, BsCircle, BsSlash } from 'react-icons/bs';
+import { View } from './View.js';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <View />
   </React.StrictMode>,
   document.getElementById('root')
 );
