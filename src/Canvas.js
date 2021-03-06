@@ -100,10 +100,6 @@ export class Canvas extends React.Component {
                 (new Line(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
                 break;
         }
-
-        for (let o of this.state.obj) {
-            o.draw(context);
-        }
     }
 
     render() {
