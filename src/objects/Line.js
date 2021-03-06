@@ -1,10 +1,8 @@
-export class Line {
-    constructor(initX, initY, finalX, finalY, color='#000000') {
-        this.initX = initX;
-        this.initY = initY;
-        this.finalX = finalX;
-        this.finalY = finalY;
-        this.color = color;
+import {Shape} from './Shape.js';
+
+export class Line extends Shape {
+    constructor(initX, initY, finalX, finalY, color='#000000', z=0) {
+        super(initX, initY, finalX, finalY, color, z);
     }
 
     draw(context) {
