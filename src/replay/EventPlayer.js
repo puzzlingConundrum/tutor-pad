@@ -4,7 +4,7 @@ import { Line } from '../objects/Line.js';
 
 export default class EventPlayer {
     constructor() {
-        this.eventArray = [];
+        this.eventArray = []; // array of canvasEvents
         this.isReplaying = false;
 
         this.initMousePos = []
@@ -12,10 +12,20 @@ export default class EventPlayer {
         this.type = ''
     }
 
+    /**
+     * 
+     * @returns {int} Replay time in milliseconds
+     */
+    getLength() {
+        if (this.eventArray.length > 0)
+            return this.eventArray[this.eventArray.length-1].time;
+        else 
+            return 0;
+    }
 
     replay(ms, context) {
+        var currentArray = []
         
-
         if (this.eventArray.length > 0) {
             if (!this.isReplaying)
                 this.isReplaying = true;
@@ -24,40 +34,7 @@ export default class EventPlayer {
                 //console.log(this.eventArray[0].time);
 
                 let state = this.eventArray[0].state;
-
-                //console.log(state.drawing);
-                context.clearRect(0, 0, 2000, 2000);
-
-                for (let o of state.obj) {
-                    o.draw(context);
-                    //console.log(o);
-                }
-
-                if (state.drawing) {
-                    
-
-                        
-                    let initX = state.initMousePos[0];
-                    let initY = state.initMousePos[1];
-                    let finalX = state.finalMousePos[0];
-                    let finalY = state.finalMousePos[1];
-                    
-                    switch (state.type) {
-                        case 'square':
-                            (new Rectangle(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
-                            break;
-                        case 'circle':
-                            (new Circle(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
-                            break;
-                        case 'line':
-                            (new Line(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
-                            break;
-                        default:
-                            
-
-                    }
-                    
-                }
+                currentArray.push(state)
 
                 this.eventArray.shift();
                 
@@ -68,6 +45,9 @@ export default class EventPlayer {
         } else {
             this.isReplaying = false;
         }
-        
+
+        return currentArray;
     }
+
+
 }

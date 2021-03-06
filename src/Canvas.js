@@ -5,11 +5,12 @@ import { Line } from './objects/Line.js';
 import { Form, Navbar, Nav, ButtonGroup, ToggleButton } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BsSquare, BsCircle, BsSlash } from 'react-icons/bs';
-import { BiEraser, BiPlay, BiVideoRecording } from 'react-icons/bi'
+import { BiEraser, BiPause, BiPlay, BiVideoRecording } from 'react-icons/bi'
 import EventRecorder from './replay/EventRecorder'
 import EventPlayer from './replay/EventPlayer'
 
 export class Canvas extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -18,6 +19,7 @@ export class Canvas extends React.Component {
             initMousePos: [], // 0: x, 1: y
             finalMousePos: [], // 0: x, 1: y
             type: 'none',
+            time: 0,
             isRecording: false,
             isReplaying: false
         };
@@ -26,23 +28,33 @@ export class Canvas extends React.Component {
         this.ms = 0;
 
         this.eventRecorder = new EventRecorder();
-        this.EventPlayer = new EventPlayer();
+        this.eventPlayer = new EventPlayer();
     }
 
     tick() {
         this.ms += 5;
         //console.log(this.ms)
 
+        let ctx = this.canvasRef.current.getContext('2d');
+
+   
+        let replayTime = this.eventPlayer.getLength();
 
         if (this.state.isReplaying) {
-            this.EventPlayer.replay(this.ms, this.canvasRef.current.getContext('2d'));
+            let stateArray = this.eventPlayer.replay(this.ms, ctx);
+            for (let state of stateArray)
+                this.drawCanvas(ctx, state);
+            
+        } 
+        //console.log(this.ms, replayTime)
+
+        if (this.ms > replayTime) {
+            this.setState({isReplaying: this.eventPlayer.isReplaying})
         }
     }
 
     componentDidMount() {
-        //if (this.state.isReplaying)
         this.interval = setInterval(() => this.tick(), 1);
-        
     }
 
     componentWillUnmount() {
@@ -98,31 +110,37 @@ export class Canvas extends React.Component {
     componentDidUpdate() {
         let canvas = this.canvasRef.current;
         let context = canvas.getContext('2d');
-        context.fillStyle = '#000000';
-        context.clearRect(0, 0, this.props.width, this.props.height);
+        this.drawCanvas(context, this.state);
 
-        for (let o of this.state.obj) {
-            o.draw(context);
+        this.eventRecorder.record(this.state);
+    }
+
+
+    drawCanvas(ctx, state) {
+ 
+        ctx.fillStyle = '#000000';
+        ctx.clearRect(0, 0, this.props.width, this.props.height);
+
+        for (let o of state.obj) {
+            o.draw(ctx);
             //console.log(o);
         }
 
-        let initX = this.state.initMousePos[0];
-        let initY = this.state.initMousePos[1];
-        let finalX = this.state.finalMousePos[0];
-        let finalY = this.state.finalMousePos[1];
-        switch (this.state.type) {
+        let initX = state.initMousePos[0];
+        let initY = state.initMousePos[1];
+        let finalX = state.finalMousePos[0];
+        let finalY = state.finalMousePos[1];
+        switch (state.type) {
             case 'square':
-                (new Rectangle(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
+                (new Rectangle(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
                 break;
             case 'circle':
-                (new Circle(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
+                (new Circle(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
                 break;
             case 'line':
-                (new Line(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
+                (new Line(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
                 break;
         }
-
-        this.eventRecorder.record(this.state);
     }
 
     // Button onClick
@@ -167,7 +185,7 @@ export class Canvas extends React.Component {
             // Start recording
             this.setState({ isReplaying: true });
             this.eventPlayer = new EventPlayer();
-            this.EventPlayer.eventArray = this.eventRecorder.eventArray;
+            this.eventPlayer.eventArray = [...this.eventRecorder.eventArray];
             this.ms = 0;
 
         } else {
@@ -189,10 +207,8 @@ export class Canvas extends React.Component {
                                 <ToggleButton variant='link' type='radio' onClick={e => this.setCircle()}>{<BsCircle />}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onClick={e => this.setLine()}>{<BsSlash />}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onClick={e => this.doClear()}>{<BiEraser/>}</ToggleButton>
-                                <ToggleButton variant='link' type='radio' onChange={e => this.setRecording()}>
-                                    {this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}
-                                    </ToggleButton>
-                                <ToggleButton variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPlay color="red" /> : <BiPlay />}</ToggleButton>
+                                <ToggleButton variant='link' type='radio' onChange={e => this.setRecording()}>{this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}</ToggleButton>
+                                <ToggleButton variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
                             </ButtonGroup>
                         </Nav>
                     </Navbar>

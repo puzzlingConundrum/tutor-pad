@@ -29,9 +29,13 @@ export default class EventRecorder {
             stringData += time + ":" + stateObject + "\n";
         }
 
-        console.log(stringData)
+        //console.log(stringData)
 
         return stringData;
+    }
+
+    setEventFromText(text) {
+
     }
 
     sendTextToServer() {
