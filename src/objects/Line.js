@@ -1,18 +1,12 @@
-export class Line {
-    constructor(initX, initY, finalX, finalY, color='#000000') {
-        this.initX = initX;
-        this.initY = initY;
-        this.finalX = finalX;
-        this.finalY = finalY;
-        this.color = color;
+import {Shape} from './Shape.js';
+
+export class Line extends Shape {
+    constructor(initX, initY, finalX, finalY, color='#000000', z=0) {
+        super(initX, initY, finalX, finalY, color, z);
     }
 
     draw(context) {
-        context.beginPath();
-        context.moveTo(this.initX, this.initY);
-        context.lineTo(this.finalX, this.finalY);
-        context.closePath();
-        context.stroke();
+        this.preview(context, this.initX, this.initY, this.finalX, this.finalY);
     }
 
     preview(context, initX, initY, finalX, finalY) {
@@ -21,5 +15,9 @@ export class Line {
         context.lineTo(finalX, finalY);
         context.closePath();
         context.stroke();
+    }
+
+    getType() {
+        return 'line';
     }
 }

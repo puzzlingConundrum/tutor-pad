@@ -1,23 +1,24 @@
-export class Circle {
-    constructor(initX, initY, finalX, finalY, color='#000000') {
-        this.initX = initX;
-        this.initY = initY;
-        this.finalX = finalX;
-        this.finalY = finalY;
-        this.color = color;
+import {Shape} from './Shape.js';
+
+export class Circle extends Shape {
+    constructor(initX, initY, finalX, finalY, color='#000000', z=0) {
+        super(initX, initY, finalX, finalY, color, z);
     }
 
     draw(context) {
+        this.preview(context, this.initX, this.initY, this.finalX, this.finalY);
+    }
+
+    preview(context, initX, initY, finalX, finalY) {
+        let radiusX = Math.abs(finalX-initX);
+        let radiusY = Math.abs(finalY-initY);
         context.beginPath();
-        context.ellipse(this.initX, this.initY, Math.abs(this.finalX - this.initX), Math.abs(this.finalY - this.initY), 0, 0, 2*Math.PI);
+        context.ellipse(initX+0.5*radiusX, initY+0.5*radiusY, 0.5*radiusX, 0.5*radiusY, 0, 0, 2*Math.PI);
         context.closePath();
         context.stroke();
     }
 
-    preview(context, initX, initY, finalX, finalY) {
-        context.beginPath();
-        context.ellipse(initX, initY, Math.abs(finalX - initX), Math.abs(finalY - initY), 0, 0, 2*Math.PI);
-        context.closePath();
-        context.stroke();
+    getType() {
+        return 'circle';
     }
 }
