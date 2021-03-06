@@ -1,5 +1,8 @@
-export class BoundingBox {
+import {Shape} from './Shape.js';
+
+export class BoundingBox extends Shape {
     constructor(shape) {
+        super(0);
         this.shape = shape;
     }
 
@@ -12,6 +15,10 @@ export class BoundingBox {
             context.stroke();
             context.strokeStyle = '#000000';
         }
+    }
+
+    getType() {
+        return "bounding box";
     }
 }
 

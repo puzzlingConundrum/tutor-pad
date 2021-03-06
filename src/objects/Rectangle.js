@@ -6,10 +6,7 @@ export class Rectangle extends Shape {
     }
 
     draw(context) {
-        context.beginPath();
-        context.rect(this.initX, this.initY, this.finalX - this.initX, this.finalY - this.initY);
-        context.closePath();
-        context.stroke();
+        this.preview(context, this.initX, this.initY, this.finalX, this.finalY);
     }
 
     preview(context, initX, initY, finalX, finalY) {
@@ -17,5 +14,9 @@ export class Rectangle extends Shape {
         context.rect(initX, initY, finalX - initX, finalY - initY);
         context.closePath();
         context.stroke();
+    }
+
+    getType() {
+        return 'rectangle';
     }
 }

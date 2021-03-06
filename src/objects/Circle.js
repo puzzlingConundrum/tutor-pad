@@ -17,4 +17,8 @@ export class Circle extends Shape {
         context.closePath();
         context.stroke();
     }
+
+    getType() {
+        return 'circle';
+    }
 }

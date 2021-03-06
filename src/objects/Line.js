@@ -6,11 +6,7 @@ export class Line extends Shape {
     }
 
     draw(context) {
-        context.beginPath();
-        context.moveTo(this.initX, this.initY);
-        context.lineTo(this.finalX, this.finalY);
-        context.closePath();
-        context.stroke();
+        this.preview(context, this.initX, this.initY, this.finalX, this.finalY);
     }
 
     preview(context, initX, initY, finalX, finalY) {
@@ -19,5 +15,9 @@ export class Line extends Shape {
         context.lineTo(finalX, finalY);
         context.closePath();
         context.stroke();
+    }
+
+    getType() {
+        return 'line';
     }
 }
