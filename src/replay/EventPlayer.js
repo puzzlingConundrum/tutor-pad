@@ -14,7 +14,7 @@ export default class EventPlayer {
 
 
     replay(ms, context) {
-        ms*=10;
+        
 
         if (this.eventArray.length > 0) {
             if (!this.isReplaying)
@@ -26,9 +26,15 @@ export default class EventPlayer {
                 let state = this.eventArray[0].state;
 
                 //console.log(state.drawing);
+                context.clearRect(0, 0, 2000, 2000);
+
+                for (let o of state.obj) {
+                    o.draw(context);
+                    //console.log(o);
+                }
 
                 if (state.drawing) {
-                    context.clearRect(0, 0, 2000, 2000);
+                    
 
                         
                     let initX = state.initMousePos[0];

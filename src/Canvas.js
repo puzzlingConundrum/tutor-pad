@@ -5,7 +5,7 @@ import { Line } from './objects/Line.js';
 import { Form, Navbar, Nav, ButtonGroup, ToggleButton } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BsSquare, BsCircle, BsSlash } from 'react-icons/bs';
-import { BiPlay, BiVideoRecording } from 'react-icons/bi'
+import { BiEraser, BiPlay, BiVideoRecording } from 'react-icons/bi'
 import EventRecorder from './replay/EventRecorder'
 import EventPlayer from './replay/EventPlayer'
 
@@ -30,7 +30,7 @@ export class Canvas extends React.Component {
     }
 
     tick() {
-        this.ms += 1;
+        this.ms += 5;
         //console.log(this.ms)
 
 
@@ -138,6 +138,16 @@ export class Canvas extends React.Component {
         this.setState({ type: 'line', initMousePos: [], finalMousePos: [] });
     }
 
+    doClear() {
+        let canvas = this.canvasRef.current;
+        let context = canvas.getContext('2d');
+
+        context.clearRect(0, 0, this.props.width, this.props.height);
+        this.state.obj = [];
+        this.state.initMousePos = [];
+        this.state.finalMousePos = [];
+    }
+
     setRecording() {
         if (!this.state.isRecording) {
             // Start recording
@@ -178,6 +188,7 @@ export class Canvas extends React.Component {
                                 <ToggleButton variant='link' type='radio' onClick={e => this.setSquare()}>{<BsSquare />}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onClick={e => this.setCircle()}>{<BsCircle />}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onClick={e => this.setLine()}>{<BsSlash />}</ToggleButton>
+                                <ToggleButton variant='link' type='radio' onClick={e => this.doClear()}>{<BiEraser/>}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onChange={e => this.setRecording()}>
                                     {this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}
                                     </ToggleButton>
