@@ -1,7 +1,3 @@
-import { Rectangle } from '../objects/Rectangle'
-import { Circle } from '../objects/Circle.js';
-import { Line } from '../objects/Line.js';
-
 export default class EventPlayer {
     constructor() {
         this.eventArray = []; // array of canvasEvents
