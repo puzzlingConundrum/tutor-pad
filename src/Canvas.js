@@ -30,12 +30,14 @@ export class Canvas extends React.Component {
             obj: [],
             initMousePos: [], // 0: x, 1: y
             finalMousePos: [], // 0: x, 1: y
-            //textToShow: ''
+            textToShow: 'TextToShow'
         };
         this.canvasRef = React.createRef();
         this.offset = 60;
         this.mouseDistance = [];
         this.mouseRange = 20;
+
+        const[text, setText] = '';
 
          // this.onKeyPressed = this.onKeyPressed.bind(this);
     }
@@ -223,11 +225,8 @@ export class Canvas extends React.Component {
 
     keyPressed(e) {
         alert('a key is pressed');
-        let context = this.canvasRef.current.getContext('2d');
-        context.addEventListener('keydown', function (event) {
-                //just add the key to the this.state obj
-                alert('a key is pressed');
-        }); 
+       // this.setText(e.target.value)
+       //this.state.textToShow = {e};
     }
 
 
@@ -257,7 +256,7 @@ export class Canvas extends React.Component {
                 (new Line(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
                 break;
             case 'text box':
-                (new TextBox(context,  initX, initY, finalX, finalY)).preview(context, "some text", initX, initY, finalX, finalY); 
+                (new TextBox(context,  initX, initY, finalX, finalY)).preview(context, this.state.textToShow, initX, initY, finalX, finalY); 
                 break; 
             default:
                 break;
@@ -327,25 +326,29 @@ export class Canvas extends React.Component {
                             onMouseDown={e => this.mouseDown(e)}
                             onMouseMove={e => this.move(e)}
                             onMouseUp={e => this.mouseUp(e)} 
-                            onKeyDown={e => this.keyPressed(e)}
+                           // onKeyDown={this.keyPressed}
  
                         ></canvas>
                     </div>
                 </Form.Row>
 
-                
-                <div onKeyDown={this.keyPressed}></div>
+
 
                 <div style = {{position: "fixed", bottom : 10, padding:10}}>
                     <input 
                         type="text"
-                        value=""
+                        value={this.state.textToShow} 
+                        //onKeyDown={this.keyPressed}
+
                         onChange = {(e) => {
-                            console.log(e.target.value);
+                           // this.keyPressed(e);
+                           console.log(e.target.value);
+                            this.state.textToShow = {e}
                         }}
                     />
                 </div>
 
+                {/* <div onKeyDown={this.keyPressed}></div> */}
             </>
         );
     }
