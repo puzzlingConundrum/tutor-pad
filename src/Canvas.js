@@ -3,7 +3,9 @@ import { Rectangle } from './objects/Rectangle.js';
 import { Circle } from './objects/Circle.js';
 import { Line } from './objects/Line.js';
 import { BoundingBox } from './objects/BoundingBox.js';
-import { Form, Navbar, Nav, ButtonGroup, ToggleButton } from 'react-bootstrap';
+import { FreeForm } from './objects/FreeForm.js';
+import { Graph } from './objects/Graph.js';
+import { Form, Navbar, Nav, ButtonGroup, ToggleButton, Dropdown } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
     BsSquare,
@@ -14,7 +16,10 @@ import {
     BsCircleFill,
     BsSlashSquareFill,
     BsCursorFill,
-    BsCursorText
+    BsCursorText,
+    BsPencil,
+    BsPencilSquare,
+    BsGraphUp
 } from 'react-icons/bs';
 
 export class Canvas extends React.Component {
@@ -35,6 +40,7 @@ export class Canvas extends React.Component {
         this.offset = 60;
         this.mouseDistance = [];
         this.mouseRange = 20;
+        this.freeFormPoints = [];
     }
 
     setType(type) {
@@ -147,8 +153,12 @@ export class Canvas extends React.Component {
         } else {
             document.body.style.cursor = 'default';
         }
+
         if (this.state.drawing) {
             this.setState({ finalMousePos: [e.pageX, e.pageY - this.offset] });
+            if (this.state.type === 'draw') {
+                this.freeFormPoints.push([e.pageX, e.pageY - this.offset]);
+            }
         }
         let temp;
         if (this.state.resizeX && this.state.selected) {
@@ -205,6 +215,10 @@ export class Canvas extends React.Component {
             case 'line':
                 newObject = new Line(initX, initY, finalX, finalY);
                 break;
+            case 'draw':
+                newObject = new FreeForm(this.freeFormPoints);
+                this.freeFormPoints = [];
+                break;
             default:
                 newObject = null;
         }
@@ -237,6 +251,9 @@ export class Canvas extends React.Component {
             case 'line':
                 (new Line(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
                 break;
+            case 'draw':
+                (new FreeForm(context, this.freeFormPoints)).preview(context, this.freeFormPoints);
+                break;
             default:
                 break;
         }
@@ -257,6 +274,21 @@ export class Canvas extends React.Component {
 
     setLine() {
         this.setState({ type: 'line', initMousePos: [], finalMousePos: [] });
+    }
+
+    setFreeForm() {
+        this.setState({ type: 'draw', initMousePos: [], finalMousePos: [] });
+    }
+
+    createGraph(type) {
+        let canvas = this.canvasRef.current;
+        let context = canvas.getContext('2d');
+        context.fillStyle = '#000000';
+        context.clearRect(0, 0, this.props.width, this.props.height);
+        let graph = new Graph(50, 50, 200, 200, type);
+        graph.draw(context);
+        this.setState({obj: [...this.state.obj, graph]});
+
     }
 
     render() {
@@ -286,6 +318,19 @@ export class Canvas extends React.Component {
                                 <ToggleButton variant='link' type='radio' onClick={e => this.setLine()}>
                                     {<BsCursorText />}
                                 </ToggleButton>
+
+                                <ToggleButton variant='link' type='radio' onClick={e => this.setFreeForm()}>
+                                    {((this.state.type === 'draw') && <BsPencilSquare />) || <BsPencil />}
+                                </ToggleButton>
+
+                                <Dropdown>
+                                    <Dropdown.Toggle variant='link'>{<BsGraphUp/>}</Dropdown.Toggle>
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item onClick={e => this.createGraph('linear')}>Linear</Dropdown.Item>
+                                        <Dropdown.Item onClick={e => this.createGraph('quadratic')}>Quadratic</Dropdown.Item>
+                                        <Dropdown.Item onClick={e => this.createGraph('cubic')}>Cubic</Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
                             </ButtonGroup>
                         </Nav>
                     </Navbar>
@@ -300,7 +345,6 @@ export class Canvas extends React.Component {
                             onMouseDown={e => this.mouseDown(e)}
                             onMouseMove={e => this.move(e)}
                             onMouseUp={e => this.mouseUp(e)}
-                        // onDragStart={e => this.drag(e)}
                         ></canvas>
                     </div>
                 </Form.Row>

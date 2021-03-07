@@ -21,9 +21,3 @@ export class BoundingBox extends Shape {
         return "bounding box";
     }
 }
-
-class AdjustingBox {
-    constructor() {
-
-    }
-}
