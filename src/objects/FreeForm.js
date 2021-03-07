@@ -21,7 +21,5 @@ export class FreeForm extends Shape {
         }
     }
 
-    getType() {
-        return 'draw';
-    }
+
 }

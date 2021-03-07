@@ -89,8 +89,9 @@ export class Canvas extends React.Component {
             for (let state of stateArray)
                 this.drawCanvas(ctx, state);
 
+            // Auto-end on last frame 
             if (this.ms > replayTime) {
-                this.setState({ isReplaying: this.eventPlayer.isReplaying })
+                //this.setState({ isReplaying: this.eventPlayer.isReplaying })
             }
 
         }
@@ -426,13 +427,12 @@ export class Canvas extends React.Component {
             this.setState({ isRecording: true });
             this.eventRecorder = new EventRecorder();
             this.eventRecorder.start();
-
         } else {
             // stop recording
             this.setState({ isRecording: false });
             this.eventRecorder.stop();
-            this.replayManager.addReplay(this.eventRecorder.eventArraytoString());
-            //console.log(this.replayManager.replayMap)
+            this.replayManager.addReplay(this.eventRecorder.eventArray);
+            this.replayIndex = this.replayManager.replayCount() - 1;
         }
     }
 
@@ -441,14 +441,13 @@ export class Canvas extends React.Component {
             // Start recording
             this.setState({ isReplaying: true });
             this.eventPlayer = new EventPlayer();
-            this.eventPlayer.eventArray = [...this.eventRecorder.eventArray];
+            this.eventPlayer.eventArray = [...this.replayManager.getReplayIndex(this.replayIndex)];
+            
             this.startTime = Date.now();
-
         } else {
             // stop recording
             this.setState({ isReplaying: false });
         }
-
 
     }
 
@@ -476,7 +475,9 @@ export class Canvas extends React.Component {
 
     selectReplay(i) {
         this.replayIndex = i;
-        //console.log(i)
+        console.log(i)
+        // Auto play 
+        //this.setReplaying();
     }
 
     selectSave(i) {
