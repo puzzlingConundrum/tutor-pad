@@ -1,5 +1,7 @@
 import React from 'react';
 import './App.css'
+// Dependencies
+import clonedeep from 'lodash.clonedeep'
 
 // Shapes
 import { Rectangle } from './objects/Rectangle.js';
@@ -164,7 +166,7 @@ export class Canvas extends React.Component {
 
             if (selectedShape && !selectedShape.focus) {
                 for (let o = 0; o < this.state.obj.length; o++) {
-                    if (this.state.obj[o].getType() === 'bounding box') {
+                    if (this.state.obj[o].type === 'bounding box') {
                         this.state.obj[o] = null;
                     } else {
                         this.state.obj[o].focus = false;
@@ -178,7 +180,7 @@ export class Canvas extends React.Component {
                 ((new BoundingBox(selectedShape)).draw(context))
             } else if (!selectedShape) {
                 for (let o = 0; o < this.state.obj.length; o++) {
-                    if (this.state.obj[o].getType() === 'bounding box') {
+                    if (this.state.obj[o].type === 'bounding box') {
                         this.state.obj[o] = null;
                     } else {
                         this.state.obj[o].focus = false;
@@ -322,7 +324,7 @@ export class Canvas extends React.Component {
 
         if (!this.state.isReplaying) {
             this.drawCanvas(context, this.state);
-            this.eventRecorder.record(this.state);
+            this.eventRecorder.record(clonedeep(this.state));
         }
     }
 
@@ -338,16 +340,22 @@ export class Canvas extends React.Component {
         ctx.fillStyle = '#000000';
         ctx.clearRect(0, 0, this.props.width, this.props.height);
 
-        if (this.state.isReplaying) {
-            for (let o of state.obj) {
-                if (o.getType() !== "bounding box" && (o !== state.moving || o !== state.selected))
-                    o.draw(ctx);
+
+        for (let o of state.obj) {
+            console.log(o);
+            if (!o)
+                continue;
+
+            // when replaying, don't draw bounding boxes
+            if ( this.state.isReplaying &&
+                !(o.type !== "bounding box" && (o !== state.moving || o !== state.selected))) {
+                continue;
             }
-        } else {
-            for (let o of state.obj) {
-                o.draw(ctx);
-            }
+   
+            o.draw(ctx);
         }
+
+
 
         let initX = state.initMousePos[0];
         let initY = state.initMousePos[1];
@@ -379,6 +387,27 @@ export class Canvas extends React.Component {
 
     clearRect(ctx) {
         ctx.clearRect(0, 0, this.props.width, this.props.height);
+    }
+
+    // ============ Helper functions=======================
+    /**
+     * 
+     * @param {Object} object Object to clone
+     * @returns A deep cloned object with no references to the original
+     */
+    copy(aObject) {
+        if (!aObject) {
+            return aObject;
+        }
+
+        let v;
+        let bObject = Array.isArray(aObject) ? [] : {};
+        for (const k in aObject) {
+            v = aObject[k];
+            bObject[k] = (typeof v === "object") ? this.copy(v) : v;
+        }
+
+        return bObject;
     }
 
     // ========================================= On Click Events ============================
@@ -424,7 +453,7 @@ export class Canvas extends React.Component {
             this.setState({ isRecording: false });
             this.eventRecorder.stop();
             this.replayManager.addReplay(this.eventRecorder.eventArraytoString());
-            console.log(this.replayManager.replayMap)
+            //console.log(this.replayManager.replayMap)
         }
     }
 
