@@ -10,7 +10,7 @@ export default class EventPlayer {
 
     /**
      * 
-     * @returns {int} Replay time in milliseconds
+     * @returns Replay time in milliseconds int
      */
     getLength() {
         if (this.eventArray.length > 0)

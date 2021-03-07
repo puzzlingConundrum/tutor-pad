@@ -1,4 +1,5 @@
 import React from 'react';
+import './App.css'
 import { Rectangle } from './objects/Rectangle.js';
 import { Circle } from './objects/Circle.js';
 import { Line } from './objects/Line.js';
@@ -19,7 +20,7 @@ import {
 import { BiEraser, BiPause, BiPlay, BiVideoRecording } from 'react-icons/bi'
 import EventRecorder from './replay/EventRecorder'
 import EventPlayer from './replay/EventPlayer'
-
+import ReplayManager from './replay/ReplayManager'
 
 export class Canvas extends React.Component {
     constructor(props) {
@@ -28,7 +29,7 @@ export class Canvas extends React.Component {
             drawing: false, // boolean of whether or not canvas is drawing something
             resizeX: false, 
             resizeY: false,
-            moving: null,   // boolean
+            moving: null,   // current object being moved
             selected: null, // boolean
 
             obj: [],
@@ -53,6 +54,7 @@ export class Canvas extends React.Component {
 
         this.eventRecorder = new EventRecorder();
         this.eventPlayer = new EventPlayer();
+        this.replayManager = new ReplayManager();
     }
 
     // ======================== REPLAY FEATURE ====================================
@@ -340,7 +342,6 @@ export class Canvas extends React.Component {
 
     setLine() {
         this.setState({ type: 'line', initMousePos: [], finalMousePos: [] });
-
     }
 
     doClear() {
@@ -364,6 +365,8 @@ export class Canvas extends React.Component {
             // stop recording
             this.setState({ isRecording: false });
             this.eventRecorder.stop();
+            this.replayManager.addReplay(this.eventRecorder.eventArraytoString());
+            console.log(this.replayManager.replayMap)
         }
     }
 
@@ -381,6 +384,20 @@ export class Canvas extends React.Component {
         }
     
 
+    }
+
+    onReload() {
+        
+    }
+
+    showReplays() {
+        let listItemArray = []
+
+        for (let replayKey of this.replayManager.getReplayKeys()) {
+            listItemArray.push(<li><ToggleButton></ToggleButton>{replayKey}</li>)
+        }
+
+        return listItemArray;
     }
 
     render() {
@@ -416,11 +433,22 @@ export class Canvas extends React.Component {
                                 <ToggleButton variant='link' type='radio' onChange={e => this.setRecording()}>{this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
 
+                                <ToggleButton variant='link' type='radio' onChange={e => this.onReload()}>
+                                    Reload
+                                </ToggleButton>
 
                             </ButtonGroup>
                         </Nav>
                     </Navbar>
                 </Form.Row>
+
+                <div className="sidebar">
+                    <p>
+                        <ul id="replay-list">
+                            {this.showReplays()}
+                        </ul>
+                    </p>
+                </div>
 
                 <Form.Row>
                     <div>

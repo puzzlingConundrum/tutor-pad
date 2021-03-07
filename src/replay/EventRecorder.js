@@ -15,8 +15,6 @@ export default class EventRecorder {
 
     stop() {
         this.isRecording = false;
-        
-        this.sendTextToServer();
     }
 
     eventArraytoString() {
@@ -29,8 +27,6 @@ export default class EventRecorder {
             stringData += time + ":" + stateObject + "\n";
         }
 
-        //console.log(stringData)
-
         return stringData;
     }
 
@@ -41,8 +37,9 @@ export default class EventRecorder {
         for (let line of lines) {
             let parts = line.split(':');
             let state = JSON.parse(parts[1]);
-            eventArray.push(new CanvasEvent(parts[0]));
+            eventArray.push(new CanvasEvent(parts[0], state));
         }
+
         this.eventArray = eventArray;
 
         return eventArray;
