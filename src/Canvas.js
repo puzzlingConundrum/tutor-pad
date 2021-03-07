@@ -334,7 +334,7 @@ export class Canvas extends React.Component {
                 (new Line(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
                 break;
             case 'draw':
-                (new FreeForm(context, this.freeFormPoints)).preview(context, this.freeFormPoints);
+                (new FreeForm(ctx, this.freeFormPoints)).preview(ctx, this.freeFormPoints);
                 break;
             default:
                 break;
@@ -416,6 +416,7 @@ export class Canvas extends React.Component {
         }
 
         return listItemArray;
+    }
 
     setFreeForm() {
         this.setState({ type: 'draw', initMousePos: [], finalMousePos: [] });
