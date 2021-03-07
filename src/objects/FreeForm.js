@@ -12,6 +12,7 @@ export class FreeForm extends Shape {
     }
 
     preview(context, points) {
+        context.lineWidth = 3;
         if (points.length > 0) {
             context.beginPath();
             for (let point of points) {
@@ -19,6 +20,7 @@ export class FreeForm extends Shape {
             }
             context.stroke();
         }
+        context.lineWidth = 1;
     }
 
 

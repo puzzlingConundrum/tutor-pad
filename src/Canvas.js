@@ -212,7 +212,7 @@ export class Canvas extends React.Component {
                     }
                     this.state.obj = this.state.obj.filter(s => s);
                 }
-                this.setState({ selected: null, resizeX: false, resizeY: false, editGraph: null });
+                this.setState({ selected: null, resizeX: false, resizeY: false });
 
             }
 
@@ -428,7 +428,9 @@ export class Canvas extends React.Component {
                 }
                 break;
             case 'graph':
-                let graph = new Graph(initX, initY, shape.width = 500, shape.height = 500, shape.functionType = 'linear', shape.z = 0)
+                let graph = new Graph(initX, initY, shape.width, shape.height, shape.functionType, shape.z)
+                if (this.state.editGraph && this.state.editGraph.coefficients)
+                    graph.coefficients = this.state.editGraph.coefficients;
                 graph.draw(context);
                 break;
         }
