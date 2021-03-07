@@ -39,7 +39,7 @@ export class Canvas extends React.Component {
         super(props);
         this.state = {
             drawing: false, // boolean of whether or not canvas is drawing something
-            resizeX: false, 
+            resizeX: false,
             resizeY: false,
             moving: null,   // current object being moved
             selected: null, // boolean
@@ -80,19 +80,18 @@ export class Canvas extends React.Component {
 
             let ctx = this.canvasRef.current.getContext('2d');
 
-   
+
             let replayTime = this.eventPlayer.getLength();
 
-        
             let stateArray = this.eventPlayer.replay(this.ms, ctx);
             for (let state of stateArray)
                 this.drawCanvas(ctx, state);
 
             if (this.ms > replayTime) {
-                this.setState({isReplaying: this.eventPlayer.isReplaying})
+                this.setState({ isReplaying: this.eventPlayer.isReplaying })
             }
-            
-        } 
+
+        }
     }
 
     componentDidMount() {
@@ -116,23 +115,23 @@ export class Canvas extends React.Component {
 
     // ================================================ SHAPE MOUSE INTERACTION DETECTOR ============================================
     isInside(x, y, shape) {
-        return (x >= shape.initX-this.mouseRange && x <= shape.finalX+this.mouseRange && y - this.offset >= shape.initY-this.mouseRange && y - this.offset <= shape.finalY+this.mouseRange);
+        return (x >= shape.initX - this.mouseRange && x <= shape.finalX + this.mouseRange && y - this.offset >= shape.initY - this.mouseRange && y - this.offset <= shape.finalY + this.mouseRange);
     }
 
     isOnLeftSide(x, y, shape) {
-        return (x >= shape.initX-this.mouseRange && x <= shape.initX+this.mouseRange && y - this.offset >= shape.initY && y - this.offset <= shape.finalY);
+        return (x >= shape.initX - this.mouseRange && x <= shape.initX + this.mouseRange && y - this.offset >= shape.initY && y - this.offset <= shape.finalY);
     }
 
     isOnRightSide(x, y, shape) {
-        return (x >= shape.finalX-this.mouseRange && x <= shape.finalX+this.mouseRange && y - this.offset >= shape.initY && y - this.offset <= shape.finalY);
+        return (x >= shape.finalX - this.mouseRange && x <= shape.finalX + this.mouseRange && y - this.offset >= shape.initY && y - this.offset <= shape.finalY);
     }
 
     isOnTopSide(x, y, shape) {
-        return (x >= shape.initX && x <= shape.finalX && y - this.offset >= shape.initY-this.mouseRange && y - this.offset <= shape.initY+this.mouseRange);
+        return (x >= shape.initX && x <= shape.finalX && y - this.offset >= shape.initY - this.mouseRange && y - this.offset <= shape.initY + this.mouseRange);
     }
 
     isOnBottomSide(x, y, shape) {
-        return (x >= shape.initX && x <= shape.finalX && y - this.offset >= shape.finalY-this.mouseRange && y - this.offset <= shape.finalY+this.mouseRange);
+        return (x >= shape.initX && x <= shape.finalX && y - this.offset >= shape.finalY - this.mouseRange && y - this.offset <= shape.finalY + this.mouseRange);
     }
 
     getComponentWithMaxZValue(mouseX, mouseY) {
@@ -159,7 +158,7 @@ export class Canvas extends React.Component {
 
             // If selected shape exists
             if (selectedShape) {
-                this.setState({ initMousePos: [e.pageX, e.pageY], moving: selectedShape, selected: selectedShape });
+                this.setState({ moving: selectedShape, selected: selectedShape });
                 this.mouseDistance = [e.pageX - selectedShape.initX, e.pageY - selectedShape.initY];
             }
 
@@ -172,10 +171,10 @@ export class Canvas extends React.Component {
                     }
                     this.state.obj = this.state.obj.filter(s => s);
                 }
- 
+
                 selectedShape.focus = true;
                 this.setState({ initMousePos: [e.pageX, e.pageY], moving: selectedShape });
-                this.setState({obj: [...this.state.obj, new BoundingBox(selectedShape)]});
+                this.setState({ obj: [...this.state.obj, new BoundingBox(selectedShape)] });
                 ((new BoundingBox(selectedShape)).draw(context))
             } else if (!selectedShape) {
                 for (let o = 0; o < this.state.obj.length; o++) {
@@ -193,23 +192,22 @@ export class Canvas extends React.Component {
             // Detect which side is selected and resize accordingly
             if (this.state.selected) {
                 if (this.isOnLeftSide(e.pageX, e.pageY, this.state.selected)) {
-                    this.setState({resizeX: true, resizeY: false});
+                    this.setState({ resizeX: true, resizeY: false });
                 } else if (this.isOnRightSide(e.pageX, e.pageY, this.state.selected)) {
-                    this.setState({resizeX: true, resizeY: false});
+                    this.setState({ resizeX: true, resizeY: false });
                 } else if (this.isOnTopSide(e.pageX, e.pageY, this.state.selected)) {
-                    this.setState({resizeX: false, resizeY: true});
+                    this.setState({ resizeX: false, resizeY: true });
                 } else if (this.isOnBottomSide(e.pageX, e.pageY, this.state.selected)) {
-                    this.setState({resizeX: false, resizeY: true});
+                    this.setState({ resizeX: false, resizeY: true });
                 }
             }
-
         } else {
             this.setState({ drawing: true, initMousePos: [e.pageX, e.pageY - this.offset], finalMousePos: [], selected: null });
         }
 
-        
-
-        this.drawCanvas(context, this.state)
+        if (!this.state.isReplaying) {
+            this.drawCanvas(context, this.state)
+        }
     }
 
     move(e) {
@@ -218,11 +216,11 @@ export class Canvas extends React.Component {
             if (this.isOnLeftSide(e.pageX, e.pageY, this.state.selected)) {
                 document.body.style.cursor = 'ew-resize';
             } else if (this.isOnRightSide(e.pageX, e.pageY, this.state.selected)) {
-                document.body.style.cursor = 'ew-resize';               
+                document.body.style.cursor = 'ew-resize';
             } else if (this.isOnTopSide(e.pageX, e.pageY, this.state.selected)) {
                 document.body.style.cursor = 'ns-resize';
             } else if (this.isOnBottomSide(e.pageX, e.pageY, this.state.selected)) {
-                document.body.style.cursor = 'ns-resize';                
+                document.body.style.cursor = 'ns-resize';
             } else {
                 document.body.style.cursor = 'default';
             }
@@ -241,6 +239,10 @@ export class Canvas extends React.Component {
             temp = this.state.selected;
             if (this.isOnLeftSide(e.pageX, e.pageY, this.state.selected)) {
                 temp.initX = e.pageX;
+                this.setState({
+                    initMousePos: [temp.initX, temp.iniY], 
+                    finalMousePos: [temp.finalX, temp.finalY]
+                });
             } else if (this.isOnRightSide(e.pageX, e.pageY, this.state.selected)) {
                 temp.finalX = e.pageX;
             }
@@ -248,9 +250,9 @@ export class Canvas extends React.Component {
             // so is selected a boolean or a shape?
             temp = this.state.selected;
             if (this.isOnTopSide(e.pageX, e.pageY, this.state.selected)) {
-                temp.initY = e.pageY-this.offset;
+                temp.initY = e.pageY - this.offset;
             } else if (this.isOnBottomSide(e.pageX, e.pageY, this.state.selected)) {
-                temp.finalY = e.pageY-this.offset;
+                temp.finalY = e.pageY - this.offset;
             }
         } else if (this.state.moving) {
             temp = this.state.moving;
@@ -260,6 +262,10 @@ export class Canvas extends React.Component {
             temp.initY = e.pageY - this.mouseDistance[1];
             temp.finalX = temp.initX + distX;
             temp.finalY = temp.initY + distY;
+            this.setState({
+                initMousePos: [temp.initX, temp.initY],
+                finalMousePos: [temp.finalX, temp.finalY]
+            });
         }
         this.setState({
             moving: temp
@@ -267,9 +273,9 @@ export class Canvas extends React.Component {
 
         let canvas = this.canvasRef.current;
         let context = canvas.getContext('2d');
-
-        
-        this.drawCanvas(context, this.state);
+        if (!this.state.isReplaying) {
+            this.drawCanvas(context, this.state);
+        }
     }
 
     mouseUp(e) {
@@ -319,16 +325,19 @@ export class Canvas extends React.Component {
      * @param {state} state Takes state as a variable so that recorded states can also be drawn
      */
     drawCanvas(ctx, state) {
- 
+
         ctx.fillStyle = '#000000';
         ctx.clearRect(0, 0, this.props.width, this.props.height);
 
-        for (let o of state.obj) {
-            o.draw(ctx);
-        }
-
-        for (let o of state.currentObj) {
-            o.draw(ctx)
+        if (this.state.isReplaying) {
+            for (let o of state.obj) {
+                if (o.getType() !== "bounding box" && (o !== state.moving || o !== state.selected))
+                    o.draw(ctx);
+            }
+        } else {
+            for (let o of state.obj) {
+                o.draw(ctx);
+            }
         }
 
         let initX = state.initMousePos[0];
@@ -349,6 +358,12 @@ export class Canvas extends React.Component {
                 (new FreeForm(ctx, this.freeFormPoints)).preview(ctx, this.freeFormPoints);
                 break;
             default:
+                if (state.moving) {
+                    state.moving.preview(ctx, initX, initY, finalX, finalY);
+                } 
+                if (state.selected) {
+                    state.selected.preview(ctx, initX, initY, finalX, finalY);
+                }
                 break;
         }
     }
@@ -379,9 +394,13 @@ export class Canvas extends React.Component {
         let context = canvas.getContext('2d');
 
         context.clearRect(0, 0, this.props.width, this.props.height);
-        this.state.obj = [];
-        this.state.initMousePos = [];
-        this.state.finalMousePos = [];
+        this.setState({
+            obj: [],
+            moving: null,
+            selected: null,
+            initMousePos: [],
+            finalMousePos: []
+        });
     }
 
     setRecording() {
@@ -415,10 +434,12 @@ export class Canvas extends React.Component {
             // stop recording
             this.setState({ isReplaying: false });
         }
+
+
     }
 
     onReload() {
-        
+
     }
 
     showReplays() {
@@ -467,7 +488,7 @@ export class Canvas extends React.Component {
         context.clearRect(0, 0, this.props.width, this.props.height);
         let graph = new Graph(50, 50, 200, 200, type);
         graph.draw(context);
-        this.setState({obj: [...this.state.obj, graph]});
+        this.setState({ obj: [...this.state.obj, graph] });
 
 
     }
@@ -507,15 +528,15 @@ export class Canvas extends React.Component {
                                 </ToggleButton>
 
                                 <Dropdown>
-                                    <Dropdown.Toggle variant='link'>{<BsGraphUp/>}</Dropdown.Toggle>
+                                    <Dropdown.Toggle variant='link'>{<BsGraphUp />}</Dropdown.Toggle>
                                     <Dropdown.Menu>
                                         <Dropdown.Item onClick={e => this.createGraph('linear')}>Linear</Dropdown.Item>
                                         <Dropdown.Item onClick={e => this.createGraph('quadratic')}>Quadratic</Dropdown.Item>
                                         <Dropdown.Item onClick={e => this.createGraph('cubic')}>Cubic</Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>
-      
-                                <ToggleButton variant='link' type='radio' onClick={e => this.doClear()}>{<BiEraser/>}</ToggleButton>
+
+                                <ToggleButton variant='link' type='radio' onClick={e => this.doClear()}>{<BiEraser />}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onChange={e => this.setRecording()}>{this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
 
