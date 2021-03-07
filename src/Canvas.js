@@ -1,11 +1,18 @@
 import React from 'react';
 import './App.css'
+
+// Shapes
 import { Rectangle } from './objects/Rectangle.js';
 import { Circle } from './objects/Circle.js';
 import { Line } from './objects/Line.js';
 import { BoundingBox } from './objects/BoundingBox.js';
 import { FreeForm } from './objects/FreeForm.js';
 import { Graph } from './objects/Graph.js';
+// Replay
+import EventRecorder from './replay/EventRecorder'
+import EventPlayer from './replay/EventPlayer'
+import ReplayManager from './replay/ReplayManager'
+// Components/Icons
 import { Form, Navbar, Nav, ButtonGroup, ToggleButton, Dropdown } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -23,9 +30,9 @@ import {
     BsGraphUp
 } from 'react-icons/bs';
 import { BiEraser, BiPause, BiPlay, BiVideoRecording } from 'react-icons/bi'
-import EventRecorder from './replay/EventRecorder'
-import EventPlayer from './replay/EventPlayer'
-import ReplayManager from './replay/ReplayManager'
+
+import ReplayButton from './components/ReplayButton';
+
 
 export class Canvas extends React.Component {
     constructor(props) {
@@ -62,6 +69,7 @@ export class Canvas extends React.Component {
         this.eventRecorder = new EventRecorder();
         this.eventPlayer = new EventPlayer();
         this.replayManager = new ReplayManager();
+
     }
 
     // ======================== REPLAY FEATURE ====================================
@@ -414,13 +422,36 @@ export class Canvas extends React.Component {
 
     showReplays() {
         let listItemArray = []
+        let i = 1;
 
         for (let replayKey of this.replayManager.getReplayKeys()) {
-            listItemArray.push(<li><ToggleButton></ToggleButton>{replayKey}</li>)
+            
+            listItemArray.push(
+            <li><ReplayButton 
+                replaySelect={() => this.selectReplay(i)}
+                saveSelect={() => this.selectSave(i)}
+                downloadSelect={() => this.selectDownload(i)}
+                num={"Replay #" + i}>
+                    </ReplayButton>
+                    </li>)
+            i++;
         }
 
         return listItemArray;
     }
+
+    selectReplay(i) {
+        alert("Test");
+    }
+
+    selectSave(i) {
+        
+    }
+
+    selectDownload(i) {
+
+    }
+
 
     setFreeForm() {
         this.setState({ type: 'draw', initMousePos: [], finalMousePos: [] });
@@ -496,7 +527,7 @@ export class Canvas extends React.Component {
 
                 <div className="sidebar">
                     <p>
-                        <ul id="replay-list">
+                        <ul class="replay-list">
                             {this.showReplays()}
                         </ul>
                     </p>

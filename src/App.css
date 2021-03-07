@@ -42,5 +42,19 @@
   height: 100%;
   margin-right: 0px;
   float: right;
-  background-color: gray
+  background-color: #282c34
+}
+
+.replay-list {
+  text-align: left;
+  align-items: left;
+}
+
+.replay-button {
+  margin-left:0px;
+}
+
+.replay-button-items {
+  text-decoration: false;
+  color: white;
 }
