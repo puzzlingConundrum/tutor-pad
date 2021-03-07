@@ -342,8 +342,8 @@ export class Canvas extends React.Component {
 
                         onChange = {(e) => {
                            // this.keyPressed(e);
-                           console.log(e.target.value);
-                            this.state.textToShow = {e}
+                           //console.log(e.target.value);
+                            this.state.textToShow = e.target.value;
                         }}
                     />
                 </div>
