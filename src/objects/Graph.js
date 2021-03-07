@@ -1,15 +1,24 @@
-import {Shape} from './Shape.js';
+import { Shape } from './Shape.js';
 
 export class Graph extends Shape {
-    constructor(initX, initY, width=500, height=500, type='linear', z=0) {
+    constructor(initX, initY, width = 500, height = 500, functionType = 'linear', z = 0) {
         super(z);
         this.initX = initX;
         this.initY = initY;
         this.width = width;
         this.height = height;
-        this.finalX = this.initX+this.width;
-        this.finalY = this.initY+this.height;
-        this.type = type;
+        this.finalX = this.initX + this.width;
+        this.finalY = this.initY + this.height;
+        this.functionType = functionType
+        ;
+        this.coefficients = [0, 0, 0, 0];
+        if (this.functionType === 'linear') {
+            this.coefficients[1] = 1;
+        } else if (this.functionType === 'quadratic') {
+            this.coefficients[2] = 1;
+        } else if (this.functionType === 'cubic') {
+            this.coefficients[3] = 1;
+        }
     }
 
     draw(context) {
@@ -28,46 +37,19 @@ export class Graph extends Shape {
                 context.strokeStyle = '#575757';
             }
             context.beginPath();
-            context.lineTo(this.initX, this.initY+i*this.height/10);
-            context.lineTo(this.initX+this.width, this.initY+i*this.height/10);
+            context.lineTo(this.initX, this.initY + i * this.height / 10);
+            context.lineTo(this.initX + this.width, this.initY + i * this.height / 10);
             context.closePath();
             context.stroke();
 
             context.beginPath();
-            context.lineTo(this.initX+i*this.width/10, this.initY);
-            context.lineTo(this.initX+i*this.width/10, this.initY+this.height);
+            context.lineTo(this.initX + i * this.width / 10, this.initY);
+            context.lineTo(this.initX + i * this.width / 10, this.initY + this.height);
             context.closePath();
             context.stroke();
         }
         context.fillStyle = '#000000';
-
-        if (this.type === 'linear') {
-            context.lineWidth = 3;
-            context.strokeStyle = '#fc9403';
-            context.beginPath();
-            context.lineTo(this.initX+this.width/20, this.initY+this.height-this.height/20);
-            context.lineTo(this.initX+this.width-this.width/20, this.initY+this.height/20);
-            context.closePath();
-            context.stroke();
-        } else if (this.type === 'quadratic') {
-            context.lineWidth = 3;
-            context.strokeStyle = '#fc9403';
-            context.beginPath();
-            for (let i = 0; i <= 100; i++) {
-                context.lineTo(this.initX+this.width/2+(i-50)/5, this.initY+this.height/2+Math.pow((i-50)/5, 2));
-                console.log((i-50)/5);
-            }
-            context.stroke();
-        } else if (this.type === 'cubic') {
-            context.lineWidth = 3;
-            context.strokeStyle = '#fc9403';
-            context.beginPath();
-            for (let i = 0; i < 100; i++) {
-                context.lineTo(this.initX+this.width/2+(i-50)/5, this.initY+this.height/2+0.1*Math.pow((i-50)/5, 3));
-                console.log((i-50)/5);
-            }
-            context.stroke();
-        }
+        this.graph(context, this.coefficients);
         context.strokeStyle = '#000000'
         context.lineWidth = 1;
     }
@@ -76,4 +58,35 @@ export class Graph extends Shape {
         this.draw(context);
     }
 
+    graph(context, coefficients) {
+        // coefficients are in the form a0 + a1*x + a2*x^2 + a3*x^3 + ... + an*x^n
+        context.lineWidth = 3;
+        context.strokeStyle = '#fc9403';
+        context.beginPath();
+        for (let i = 0; i <= 1000; i++) {
+            let x = (i-500)/2;
+            let val = this.evaluate(coefficients, x);
+            if (Math.abs(val) <= this.height/2 && Math.abs(x) <= this.width/2) {
+                context.lineTo(this.initX + this.width / 2 + x, this.initY + this.height / 2 - val);
+            }
+        }
+        context.stroke();
+    }
+
+    evaluate(coefficients, x) {
+        // coefficients are in the form a0 + a1*x + a2*x^2 + a3*x^3 + ... + an*x^n
+        let value = 0;
+        for (let i = 0; i < coefficients.length; i++) {
+            value += coefficients[i] * Math.pow(x,i);
+        }
+        return value;
+    }
+
+    set type(value) {
+        this._type = value;
+    }
+
+    get type() {
+        return 'graph';
+    }
 }
