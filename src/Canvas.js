@@ -15,7 +15,7 @@ import EventRecorder from './replay/EventRecorder'
 import EventPlayer from './replay/EventPlayer'
 import ReplayManager from './replay/ReplayManager'
 // Components/Icons
-import { Form, Navbar, Nav, ButtonGroup, ToggleButton, Dropdown } from 'react-bootstrap';
+import { Form, Navbar, Nav, ButtonGroup, ToggleButton, Dropdown, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
     BsSquare,
@@ -58,7 +58,7 @@ export class Canvas extends React.Component {
             isReplaying: false,
             freeFormPoints: [],
 
-            uuid: null,
+            editGraph: null
         };
         this.canvasRef = React.createRef();
         this.offset = 60;
@@ -172,6 +172,10 @@ export class Canvas extends React.Component {
             if (selectedShape) {
                 this.setState({ moving: selectedShape, selected: selectedShape });
                 this.mouseDistance = [e.pageX - selectedShape.initX, e.pageY - selectedShape.initY];
+
+                if (selectedShape.type === 'graph') {
+                    this.setState({editGraph: selectedShape});
+                }
             }
 
             if (selectedShape && !selectedShape.focus) {
@@ -197,7 +201,7 @@ export class Canvas extends React.Component {
                     }
                     this.state.obj = this.state.obj.filter(s => s);
                 }
-                this.setState({ selected: null, resizeX: false, resizeY: false });
+                this.setState({ selected: null, resizeX: false, resizeY: false, editGraph: null });
 
             }
 
@@ -603,6 +607,7 @@ export class Canvas extends React.Component {
                                         <Dropdown.Item onClick={e => this.createGraph('linear')}>Linear</Dropdown.Item>
                                         <Dropdown.Item onClick={e => this.createGraph('quadratic')}>Quadratic</Dropdown.Item>
                                         <Dropdown.Item onClick={e => this.createGraph('cubic')}>Cubic</Dropdown.Item>
+                                        <Dropdown.Item onClick={e => this.createGraph('custom')}>Custom</Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>
 
@@ -611,6 +616,25 @@ export class Canvas extends React.Component {
                                 <ToggleButton title="Play recording" variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
 
                             </ButtonGroup>
+
+                            {this.state.editGraph &&
+                                (
+                                    <Form.Row>
+                                        <Col xs={3}>
+                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[0]} onChange={e => this.state.editGraph.coefficients[0] = e.target.value} style={{width: '75px'}}></Form.Control>
+                                        </Col>
+                                        <Col xs={3}>
+                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[1]} onChange={e => this.state.editGraph.coefficients[1] = e.target.value} style={{width: '75px'}}></Form.Control>
+                                        </Col>
+                                        <Col xs={3}>
+                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[2]} onChange={e => this.state.editGraph.coefficients[2] = e.target.value} style={{width: '75px'}}></Form.Control>
+                                        </Col>
+                                        <Col xs={3}>
+                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[3]} onChange={e => this.state.editGraph.coefficients[3] = e.target.value} style={{width: '75px'}}></Form.Control>
+                                        </Col>
+                                    </Form.Row>
+                                )
+                            }
                         </Nav>
 
                         <Nav className="ml-auto">
