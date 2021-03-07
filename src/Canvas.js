@@ -3,6 +3,7 @@ import { Rectangle } from './objects/Rectangle.js';
 import { Circle } from './objects/Circle.js';
 import { Line } from './objects/Line.js';
 import { BoundingBox } from './objects/BoundingBox.js';
+import { TextBox } from './objects/TextBox.js';
 import { Form, Navbar, Nav, ButtonGroup, ToggleButton } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -17,7 +18,7 @@ import {
     BsCursorText
 } from 'react-icons/bs';
 
-export class Canvas extends React.Component {
+export class Canvas extends React.Component { 
     constructor(props) {
         super(props);
         this.state = {
@@ -29,12 +30,16 @@ export class Canvas extends React.Component {
             obj: [],
             initMousePos: [], // 0: x, 1: y
             finalMousePos: [], // 0: x, 1: y
-            type: 'select'
+            //text: 'select',
+            // setText: ''  
         };
         this.canvasRef = React.createRef();
         this.offset = 60;
         this.mouseDistance = [];
         this.mouseRange = 20;
+
+        //this.textToShow = this.textToShow.bind(this);
+   // this.onKeyPressed = this.onKeyPressed.bind(this);
     }
 
     setType(type) {
@@ -75,6 +80,7 @@ export class Canvas extends React.Component {
 
     mouseDown(e) {
         let context = this.canvasRef.current.getContext('2d');
+
         if (this.state.type === 'select') {
             let selectedShape = this.getComponentWithMaxZValue(e.pageX, e.pageY);
             if (selectedShape) {
@@ -205,6 +211,9 @@ export class Canvas extends React.Component {
             case 'line':
                 newObject = new Line(initX, initY, finalX, finalY);
                 break;
+            case 'text box':
+                newObject = new TextBox( initX, initY, finalX, finalY);
+                break; 
             default:
                 newObject = null;
         }
@@ -212,6 +221,16 @@ export class Canvas extends React.Component {
             this.setState({ drawing: false, obj: [...this.state.obj, newObject] });
         }
     }
+ 
+
+    keyPressed(e) {
+        alert('a key is pressed');
+        let context = this.canvasRef.current.getContext('2d');
+        context.addEventListener('keydown', function (event) {
+                alert('a key is pressed');
+        }); 
+    }
+
 
     componentDidUpdate() {
         let canvas = this.canvasRef.current;
@@ -227,6 +246,7 @@ export class Canvas extends React.Component {
         let initY = this.state.initMousePos[1];
         let finalX = this.state.finalMousePos[0];
         let finalY = this.state.finalMousePos[1];
+
         switch (this.state.type) {
             case 'square':
                 (new Rectangle(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
@@ -237,6 +257,9 @@ export class Canvas extends React.Component {
             case 'line':
                 (new Line(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
                 break;
+            case 'text box':
+                (new TextBox(context,  initX, initY, finalX, finalY)).preview(context, "some text", initX, initY, finalX, finalY); 
+                break; 
             default:
                 break;
         }
@@ -259,6 +282,10 @@ export class Canvas extends React.Component {
         this.setState({ type: 'line', initMousePos: [], finalMousePos: [] });
     }
 
+    setTextBox() {
+        this.setState({ type: 'text box', initMousePos: [], finalMousePos: [] });
+    }
+   
     render() {
         return (
             <>
@@ -283,9 +310,10 @@ export class Canvas extends React.Component {
                                     {((this.state.type === 'line') && <BsSlashSquareFill />) || <BsSlash />}
                                 </ToggleButton>
 
-                                <ToggleButton variant='link' type='radio' onClick={e => this.setLine()}>
+                                <ToggleButton variant='link' type='radio' onClick={e => this.setTextBox()}>
                                     {<BsCursorText />}
                                 </ToggleButton>
+
                             </ButtonGroup>
                         </Nav>
                     </Navbar>
@@ -299,12 +327,32 @@ export class Canvas extends React.Component {
                             height={this.props.height}
                             onMouseDown={e => this.mouseDown(e)}
                             onMouseMove={e => this.move(e)}
-                            onMouseUp={e => this.mouseUp(e)}
-                        // onDragStart={e => this.drag(e)}
+                            onMouseUp={e => this.mouseUp(e)} 
+                            onKeyDown={e => this.keyPressed(e)}
+ 
                         ></canvas>
                     </div>
                 </Form.Row>
+
+                <div style = {{position: "fixed", bottom : 8, padding:10}}>
+                    <button onClick = {() => {}}> Undo </button>
+                    <button onClick = {() => {}}> Redo </button>
+                </div>
+
+                <div style = {{position: "fixed", bottom : 50, padding:10}}>
+                    <input 
+                        type="text"
+                        value=""
+                        onChange = {(e) => {
+                            console.log(e.target.value);
+                        }}
+                    />
+                </div>
+
+                <div onKeyDown={this.keyPressed}></div>
             </>
         );
     }
+
+    
 }

@@ -16,7 +16,7 @@ export class View extends React.Component {
     setSquare() {
         this.setState({type: 'square'});
         this.canvasRef.setType('square');
-    }
+    }  
 
     setCircle() {
         this.setState({type: 'circle'});
@@ -26,6 +26,9 @@ export class View extends React.Component {
     setLine() {
         this.setState({type: 'line'});
         // this.canvasRef.setType('line');
+    }
+    setText() {
+        this.setState({type: 'text box'});
     }
 
     render() {
