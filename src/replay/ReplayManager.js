@@ -81,4 +81,8 @@ export default class ReplayManager {
     getReplayByIndex(i) {
         return this.replayList[i];  
     }
+
+    remove(i) {
+        this.replayList.splice(i, 1);
+    }
 }

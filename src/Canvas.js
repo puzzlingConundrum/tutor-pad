@@ -107,7 +107,7 @@ export class Canvas extends React.Component {
 
             // Auto-end on last frame 
             if (this.ms > replayTime) {
-                //this.setState({ isReplaying: this.eventPlayer.isReplaying })
+                this.setState({ isReplaying: this.eventPlayer.isReplaying })
             }
 
         }
@@ -488,6 +488,12 @@ export class Canvas extends React.Component {
     }
 
     setReplaying() {
+        this.setState({ isReplaying: true });
+        this.eventPlayer = new EventPlayer();
+        this.eventPlayer.eventArray = [...this.replayManager.getReplayByIndex(this.replayIndex).eventArray];
+        
+        this.startTime = Date.now();
+        /*
         if (!this.state.isReplaying) {
             // Start recording
             this.setState({ isReplaying: true });
@@ -499,6 +505,7 @@ export class Canvas extends React.Component {
             // stop recording
             this.setState({ isReplaying: false });
         }
+        */
 
     }
 
@@ -518,6 +525,7 @@ export class Canvas extends React.Component {
                         replaySelect={this.selectReplay.bind(this)}
                         saveSelect={this.selectSave.bind(this)}
                         downloadSelect={this.selectDownload.bind(this)}
+                        removeSelect={this.selectRemove.bind(this)}
                         date={new Date(replay.date).toLocaleTimeString() + ", " + new Date(replay.date).toLocaleDateString()}
                         num={i}>
                     </ReplayButton>
@@ -526,6 +534,11 @@ export class Canvas extends React.Component {
         }
 
         return listItemArray;
+    }
+
+    selectRemove(i) {
+        this.replayManager.remove(i);
+        this.setState({});
     }
 
     selectReplay(i) {
@@ -647,7 +660,7 @@ export class Canvas extends React.Component {
 
                                 <ToggleButton title="Clear canvas" variant='link' type='radio' onClick={e => this.doClear()}>{<BiEraser />}</ToggleButton>
                                 <ToggleButton title="Record canvas" variant='link' type='radio' onChange={e => this.setRecording()}>{this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}</ToggleButton>
-                                <ToggleButton title="Play recording" variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
+                                {/* <ToggleButton title="Play recording" variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton> */}
 
                             </ButtonGroup>
 
@@ -686,7 +699,7 @@ export class Canvas extends React.Component {
                                 <ToggleButton className={"tab-buttons"} title="Upload file" variant='link' type='radio' onChange={""}>
                                     {<BiUpload size={30} />}
                                 </ToggleButton>
-                        */}
+                                */}
 
                             </ButtonGroup>
                         </Nav>

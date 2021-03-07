@@ -55,7 +55,6 @@
 }
 
 .replay-button {
-  margin-left:0px;
   width: 100%;
 }
 
@@ -64,8 +63,8 @@
 }
 
 .replay-toggle-button {
-  margin-right:30%;
-  
+  margin-right:20%;
+  font-size: 10px;
   color: white;
 
 }
@@ -76,10 +75,8 @@ form {
 
 
 .replay-button-icons {
-  size:50px;
+
   text-decoration: false;
-  
-  
 }
 
 .tab-buttons {
