@@ -16,7 +16,9 @@ export class Rectangle extends Shape {
         context.stroke();
     }
 
+
     getType() {
         return 'rectangle';
     }
 }
+

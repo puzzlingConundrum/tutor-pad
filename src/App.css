@@ -36,3 +36,11 @@
     transform: rotate(360deg);
   }
 }
+
+.sidebar {
+  width: 20%;
+  height: 100%;
+  margin-right: 0px;
+  float: right;
+  background-color: gray
+}

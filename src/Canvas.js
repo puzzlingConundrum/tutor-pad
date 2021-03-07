@@ -1,4 +1,5 @@
 import React from 'react';
+import './App.css'
 import { Rectangle } from './objects/Rectangle.js';
 import { Circle } from './objects/Circle.js';
 import { Line } from './objects/Line.js';
@@ -21,32 +22,88 @@ import {
     BsPencilSquare,
     BsGraphUp
 } from 'react-icons/bs';
+import { BiEraser, BiPause, BiPlay, BiVideoRecording } from 'react-icons/bi'
+import EventRecorder from './replay/EventRecorder'
+import EventPlayer from './replay/EventPlayer'
+import ReplayManager from './replay/ReplayManager'
 
 export class Canvas extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            drawing: false,
-            resizeX: false,
+            drawing: false, // boolean of whether or not canvas is drawing something
+            resizeX: false, 
             resizeY: false,
-            moving: null,
-            selected: null,
+            moving: null,   // current object being moved
+            selected: null, // boolean
+
             obj: [],
+            currentObj: [], // array of objects being interacted with, gets cleared every frame
+
             initMousePos: [], // 0: x, 1: y
             finalMousePos: [], // 0: x, 1: y
-            type: 'select'
+            type: 'select',
+
+            // Recording
+            isRecording: false,
+            isReplaying: false,
         };
         this.canvasRef = React.createRef();
         this.offset = 60;
         this.mouseDistance = [];
         this.mouseRange = 20;
         this.freeFormPoints = [];
+        this.canvasRef = React.createRef();
+        this.offset = 60;
+
+        this.ms = 0;
+
+        this.eventRecorder = new EventRecorder();
+        this.eventPlayer = new EventPlayer();
+        this.replayManager = new ReplayManager();
+    }
+
+    // ======================== REPLAY FEATURE ====================================
+    updateFrame() {
+        this.ms += 4;
+
+        let ctx = this.canvasRef.current.getContext('2d');
+
+   
+        let replayTime = this.eventPlayer.getLength();
+
+        if (this.state.isReplaying) {
+            let stateArray = this.eventPlayer.replay(this.ms, ctx);
+            for (let state of stateArray)
+                this.drawCanvas(ctx, state);
+            
+        } 
+
+        if (this.ms > replayTime) {
+            this.setState({isReplaying: this.eventPlayer.isReplaying})
+        }
+    }
+
+    componentDidMount() {
+        this.interval = setInterval(() => this.updateFrame(), 1);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+
+    componentDidUpdate() {
+        if (this.props.ref) {
+            this.canvasRef = this.props.ref;
+        }
+
     }
 
     setType(type) {
         this.setState({ type: { type } });
     }
 
+    // ================================================ SHAPE MOUSE INTERACTION DETECTOR ============================================
     isInside(x, y, shape) {
         return (x >= shape.initX-this.mouseRange && x <= shape.finalX+this.mouseRange && y - this.offset >= shape.initY-this.mouseRange && y - this.offset <= shape.finalY+this.mouseRange);
     }
@@ -79,14 +136,22 @@ export class Canvas extends React.Component {
         return maxShape;
     }
 
+    // ========================================== MOUSE EVENTS ==============================
+
     mouseDown(e) {
         let context = this.canvasRef.current.getContext('2d');
+
+        // If selecting tool on
         if (this.state.type === 'select') {
-            let selectedShape = this.getComponentWithMaxZValue(e.pageX, e.pageY);
+            // Select shape with greatest Z value
+            var selectedShape = this.getComponentWithMaxZValue(e.pageX, e.pageY);
+
+            // If selected shape exists
             if (selectedShape) {
                 this.setState({ initMousePos: [e.pageX, e.pageY], moving: selectedShape, selected: selectedShape });
                 this.mouseDistance = [e.pageX - selectedShape.initX, e.pageY - selectedShape.initY];
             }
+
             if (selectedShape && !selectedShape.focus) {
                 for (let o = 0; o < this.state.obj.length; o++) {
                     if (this.state.obj[o].getType() === 'bounding box') {
@@ -96,10 +161,7 @@ export class Canvas extends React.Component {
                     }
                     this.state.obj = this.state.obj.filter(s => s);
                 }
-                context.clearRect(0, 0, this.props.width, this.props.height);
-                for (let o of this.state.obj) {
-                    o.draw(context);
-                }
+ 
                 selectedShape.focus = true;
                 this.setState({ initMousePos: [e.pageX, e.pageY], moving: selectedShape });
                 this.setState({obj: [...this.state.obj, new BoundingBox(selectedShape)]});
@@ -114,12 +176,10 @@ export class Canvas extends React.Component {
                     this.state.obj = this.state.obj.filter(s => s);
                 }
                 this.setState({ selected: null, resizeX: false, resizeY: false });
-                context.clearRect(0, 0, this.props.width, this.props.height);
-                for (let o of this.state.obj) {
-                    o.draw(context);
-                }
+
             }
 
+            // Detect which side is selected and resize accordingly
             if (this.state.selected) {
                 if (this.isOnLeftSide(e.pageX, e.pageY, this.state.selected)) {
                     this.setState({resizeX: true, resizeY: false});
@@ -131,9 +191,14 @@ export class Canvas extends React.Component {
                     this.setState({resizeX: false, resizeY: true});
                 }
             }
+
         } else {
             this.setState({ drawing: true, initMousePos: [e.pageX, e.pageY - this.offset], finalMousePos: [], selected: null });
         }
+
+        
+
+        this.drawCanvas(context, this.state)
     }
 
     move(e) {
@@ -169,6 +234,7 @@ export class Canvas extends React.Component {
                 temp.finalX = e.pageX;
             }
         } else if (this.state.resizeY && this.state.selected) {
+            // so is selected a boolean or a shape?
             temp = this.state.selected;
             if (this.isOnTopSide(e.pageX, e.pageY, this.state.selected)) {
                 temp.initY = e.pageY-this.offset;
@@ -190,12 +256,9 @@ export class Canvas extends React.Component {
 
         let canvas = this.canvasRef.current;
         let context = canvas.getContext('2d');
-        context.fillStyle = '#000000';
-        context.clearRect(0, 0, this.props.width, this.props.height);
 
-        for (let o of this.state.obj) {
-            o.draw(context);
-        }
+        
+        this.drawCanvas(context, this.state);
     }
 
     mouseUp(e) {
@@ -230,26 +293,45 @@ export class Canvas extends React.Component {
     componentDidUpdate() {
         let canvas = this.canvasRef.current;
         let context = canvas.getContext('2d');
-        context.fillStyle = '#000000';
-        context.clearRect(0, 0, this.props.width, this.props.height);
 
-        for (let o of this.state.obj) {
-            o.draw(context);
+        this.drawCanvas(context, this.state);
+
+        this.eventRecorder.record(this.state);
+    }
+
+    // ======================================== DRAW CANVAS ====================================
+
+    /**
+     * 
+     * @param {Context} ctx 
+     * @param {state} state Takes state as a variable so that recorded states can also be drawn
+     */
+    drawCanvas(ctx, state) {
+ 
+        ctx.fillStyle = '#000000';
+        ctx.clearRect(0, 0, this.props.width, this.props.height);
+
+        for (let o of state.obj) {
+            o.draw(ctx);
         }
 
-        let initX = this.state.initMousePos[0];
-        let initY = this.state.initMousePos[1];
-        let finalX = this.state.finalMousePos[0];
-        let finalY = this.state.finalMousePos[1];
-        switch (this.state.type) {
+        for (let o of state.currentObj) {
+            o.draw(ctx)
+        }
+
+        let initX = state.initMousePos[0];
+        let initY = state.initMousePos[1];
+        let finalX = state.finalMousePos[0];
+        let finalY = state.finalMousePos[1];
+        switch (state.type) {
             case 'square':
-                (new Rectangle(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
+                (new Rectangle(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
                 break;
             case 'circle':
-                (new Circle(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
+                (new Circle(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
                 break;
             case 'line':
-                (new Line(context, initX, initY, finalX, finalY)).preview(context, initX, initY, finalX, finalY);
+                (new Line(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
                 break;
             case 'draw':
                 (new FreeForm(context, this.freeFormPoints)).preview(context, this.freeFormPoints);
@@ -259,7 +341,11 @@ export class Canvas extends React.Component {
         }
     }
 
-    // Button onClick
+    clearRect(ctx) {
+        ctx.clearRect(0, 0, this.props.width, this.props.height);
+    }
+
+    // ========================================= On Click Events ============================
     setCursor() {
         this.setState({ type: 'select', initMousePos: [], finalMousePos: [] });
     }
@@ -276,6 +362,61 @@ export class Canvas extends React.Component {
         this.setState({ type: 'line', initMousePos: [], finalMousePos: [] });
     }
 
+    doClear() {
+        let canvas = this.canvasRef.current;
+        let context = canvas.getContext('2d');
+
+        context.clearRect(0, 0, this.props.width, this.props.height);
+        this.state.obj = [];
+        this.state.initMousePos = [];
+        this.state.finalMousePos = [];
+    }
+
+    setRecording() {
+        if (!this.state.isRecording) {
+            // Start recording
+            this.setState({ isRecording: true });
+            this.eventRecorder = new EventRecorder();
+            this.eventRecorder.start();
+
+        } else {
+            // stop recording
+            this.setState({ isRecording: false });
+            this.eventRecorder.stop();
+            this.replayManager.addReplay(this.eventRecorder.eventArraytoString());
+            console.log(this.replayManager.replayMap)
+        }
+    }
+
+    setReplaying() {
+        if (!this.state.isReplaying) {
+            // Start recording
+            this.setState({ isReplaying: true });
+            this.eventPlayer = new EventPlayer();
+            this.eventPlayer.eventArray = [...this.eventRecorder.eventArray];
+            this.ms = 0;
+
+        } else {
+            // stop recording
+            this.setState({ isReplaying: false });
+        }
+    
+
+    }
+
+    onReload() {
+        
+    }
+
+    showReplays() {
+        let listItemArray = []
+
+        for (let replayKey of this.replayManager.getReplayKeys()) {
+            listItemArray.push(<li><ToggleButton></ToggleButton>{replayKey}</li>)
+        }
+
+        return listItemArray;
+
     setFreeForm() {
         this.setState({ type: 'draw', initMousePos: [], finalMousePos: [] });
     }
@@ -289,6 +430,7 @@ export class Canvas extends React.Component {
         graph.draw(context);
         this.setState({obj: [...this.state.obj, graph]});
 
+
     }
 
     render() {
@@ -299,6 +441,7 @@ export class Canvas extends React.Component {
                         <Navbar.Brand>TutorPad</Navbar.Brand>
                         <Nav>
                             <ButtonGroup toggle>
+
                                 <ToggleButton variant='link' type='radio' onClick={e => this.setCursor()}>
                                     {((this.state.type === 'select') && <BsCursorFill />) || <BsCursor />}
                                 </ToggleButton>
@@ -319,6 +462,7 @@ export class Canvas extends React.Component {
                                     {<BsCursorText />}
                                 </ToggleButton>
 
+
                                 <ToggleButton variant='link' type='radio' onClick={e => this.setFreeForm()}>
                                     {((this.state.type === 'draw') && <BsPencilSquare />) || <BsPencil />}
                                 </ToggleButton>
@@ -331,10 +475,27 @@ export class Canvas extends React.Component {
                                         <Dropdown.Item onClick={e => this.createGraph('cubic')}>Cubic</Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>
+      
+                                <ToggleButton variant='link' type='radio' onClick={e => this.doClear()}>{<BiEraser/>}</ToggleButton>
+                                <ToggleButton variant='link' type='radio' onChange={e => this.setRecording()}>{this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}</ToggleButton>
+                                <ToggleButton variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
+
+                                <ToggleButton variant='link' type='radio' onChange={e => this.onReload()}>
+                                    Reload
+                                </ToggleButton>
+
                             </ButtonGroup>
                         </Nav>
                     </Navbar>
                 </Form.Row>
+
+                <div className="sidebar">
+                    <p>
+                        <ul id="replay-list">
+                            {this.showReplays()}
+                        </ul>
+                    </p>
+                </div>
 
                 <Form.Row>
                     <div>
