@@ -3,6 +3,7 @@ import {Shape} from './Shape.js';
 export class Rectangle extends Shape {
     constructor(initX, initY, finalX, finalY, color='#000000', z=0) {
         super(initX, initY, finalX, finalY, color, z);
+        this.type = 'rectangle';
     }
 
     draw(context) {
@@ -17,8 +18,6 @@ export class Rectangle extends Shape {
     }
 
 
-    getType() {
-        return 'rectangle';
-    }
+
 }
 

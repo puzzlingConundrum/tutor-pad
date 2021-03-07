@@ -9,7 +9,7 @@ export class Graph extends Shape {
         this.height = height;
         this.finalX = this.initX+this.width;
         this.finalY = this.initY+this.height;
-        this.type = type;
+        this.type = 'graph';
     }
 
     draw(context) {
@@ -72,7 +72,4 @@ export class Graph extends Shape {
         context.lineWidth = 1;
     }
 
-    getType() {
-        return 'graph';
-    }
 }

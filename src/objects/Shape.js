@@ -7,9 +7,18 @@ export class Shape {
         this.color = color;
         this.z = z;
         this.focus = focus;
+        this.type = '';
     }
 
     getZ() {
         return this.z;
+    }
+
+    set type(value) {
+        this._type = value;
+    }
+
+    get type() {
+        return this._type;
     }
 }

@@ -4,6 +4,7 @@ export class FreeForm extends Shape {
     constructor(points=[], z=0) {
         super(z)
         this.points = points;
+        this.type = 'draw';
     }
 
     draw(context) {

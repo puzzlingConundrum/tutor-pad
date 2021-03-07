@@ -4,6 +4,7 @@ import {Link} from './Link.js';
 export class Line extends Shape {
     constructor(initX, initY, finalX, finalY, color='#000000', z=0) {
         super(initX, initY, finalX, finalY, color, z);
+        this.type='line';
         this.link = null;
     }
 
@@ -19,7 +20,4 @@ export class Line extends Shape {
         context.stroke();
     }
 
-    getType() {
-        return 'line';
-    }
 }
