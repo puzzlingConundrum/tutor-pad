@@ -24,6 +24,10 @@ export default class ReplayManager {
         return this.replayMap.keys();
     }
 
+    getLatestReplay() {
+        return this.getReplayIndex(this.replayCount - 1);
+    }
+
     /**
      * 
      * @param {int} i Index of replay to get

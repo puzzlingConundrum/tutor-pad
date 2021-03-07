@@ -69,7 +69,7 @@ export class Canvas extends React.Component {
         this.eventRecorder = new EventRecorder();
         this.eventPlayer = new EventPlayer();
         this.replayManager = new ReplayManager();
-
+        this.replayIndex = 0; // the index for the replay chosen in replayManager
     }
 
     // ======================== REPLAY FEATURE ====================================
@@ -395,8 +395,9 @@ export class Canvas extends React.Component {
             // stop recording
             this.setState({ isRecording: false });
             this.eventRecorder.stop();
-            this.replayManager.addReplay(this.eventRecorder.eventArraytoString());
-            console.log(this.replayManager.replayMap)
+            this.replayManager.addReplay(this.eventRecorder.eventArray);
+            this.replayIndex = this.replayManager.replayCount() - 1;
+
         }
     }
 
@@ -405,15 +406,15 @@ export class Canvas extends React.Component {
             // Start recording
             this.setState({ isReplaying: true });
             this.eventPlayer = new EventPlayer();
-            this.eventPlayer.eventArray = [...this.eventRecorder.eventArray];
+
+            this.eventPlayer.eventArray = [...this.replayManager.getReplayIndex(this.replayIndex)];
+            
             this.startTime = Date.now();
 
         } else {
             // stop recording
             this.setState({ isReplaying: false });
         }
-    
-
     }
 
     onReload() {
@@ -427,13 +428,14 @@ export class Canvas extends React.Component {
         for (let replayKey of this.replayManager.getReplayKeys()) {
             
             listItemArray.push(
-            <li><ReplayButton 
-                replaySelect={() => this.selectReplay(i)}
-                saveSelect={() => this.selectSave(i)}
-                downloadSelect={() => this.selectDownload(i)}
-                num={"Replay #" + i}>
-                    </ReplayButton>
-                    </li>)
+            <li>
+                <ReplayButton 
+                    replaySelect={(i) => this.selectReplay.bind(this)}
+                    saveSelect={(i) => this.selectSave}
+                    downloadSelect={() => this.selectDownload}
+                    num={i}>
+                </ReplayButton>
+            </li>)
             i++;
         }
 
@@ -441,7 +443,8 @@ export class Canvas extends React.Component {
     }
 
     selectReplay(i) {
-        alert("Test");
+        this.replayIndex = i;
+        console.log(i)
     }
 
     selectSave(i) {

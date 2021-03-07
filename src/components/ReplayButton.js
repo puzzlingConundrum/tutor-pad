@@ -4,20 +4,24 @@ import { Form, Navbar, Nav, ButtonGroup, ToggleButton, Dropdown } from 'react-bo
 import { BiEraser, BiPause, BiPlay, BiVideoRecording, BiDownload, BiSave } from 'react-icons/bi'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default function ReplayButton(props) {
-
+export default class ReplayButton extends React.Component {
+    constructor(props) {
+        super(props)
+    }
     
-    return (
-        <ButtonGroup toggle className='replay-button'>
-            <ToggleButton variant='link' type='radio' onChange={props.replaySelect}>
-                <p class='replay-button-items'>{props.num}</p>
-            </ToggleButton>
-            <ToggleButton variant='link' type='radio'>
-                <BiSave class='replay-button-items'/>
-            </ToggleButton>
-            <ToggleButton variant='link' type='radio'>
-                <BiDownload class='replay-button-items'/>
-            </ToggleButton>
-        </ButtonGroup>
-    )
+    render() {
+        return (
+            <ButtonGroup toggle className='replay-button'>
+                <ToggleButton variant='link' type='radio' onChange={this.props.replaySelect(5)}>
+                    <p class='replay-button-items'>{"Replay #" + this.props.num}</p>
+                </ToggleButton>
+                <ToggleButton variant='link' type='radio'>
+                    <BiSave class='replay-button-items'/>
+                </ToggleButton>
+                <ToggleButton variant='link' type='radio'>
+                    <BiDownload class='replay-button-items'/>
+                </ToggleButton>
+            </ButtonGroup>
+        )
+    }
 }
