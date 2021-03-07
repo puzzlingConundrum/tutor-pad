@@ -9,7 +9,7 @@ export class Graph extends Shape {
         this.height = height;
         this.finalX = this.initX+this.width;
         this.finalY = this.initY+this.height;
-        this.type = 'graph';
+        this.type = type;
     }
 
     draw(context) {
@@ -28,14 +28,14 @@ export class Graph extends Shape {
                 context.strokeStyle = '#575757';
             }
             context.beginPath();
-            context.lineTo(this.initX, this.initY+i*this.width/10);
-            context.lineTo(this.initX+this.width, this.initY+i*this.width/10);
+            context.lineTo(this.initX, this.initY+i*this.height/10);
+            context.lineTo(this.initX+this.width, this.initY+i*this.height/10);
             context.closePath();
             context.stroke();
 
             context.beginPath();
-            context.lineTo(this.initX+i*this.height/10, this.initY);
-            context.lineTo(this.initX+i*this.height/10, this.initY+this.height);
+            context.lineTo(this.initX+i*this.width/10, this.initY);
+            context.lineTo(this.initX+i*this.width/10, this.initY+this.height);
             context.closePath();
             context.stroke();
         }
@@ -70,6 +70,10 @@ export class Graph extends Shape {
         }
         context.strokeStyle = '#000000'
         context.lineWidth = 1;
+    }
+
+    preview(context, initX, initY, finalX, finalY) {
+        this.draw(context);
     }
 
 }

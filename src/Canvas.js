@@ -56,12 +56,12 @@ export class Canvas extends React.Component {
             // Recording
             isRecording: false,
             isReplaying: false,
+            freeFormPoints: []
         };
         this.canvasRef = React.createRef();
         this.offset = 60;
         this.mouseDistance = [];
         this.mouseRange = 20;
-        this.freeFormPoints = [];
         this.canvasRef = React.createRef();
         this.offset = 60;
 
@@ -234,7 +234,7 @@ export class Canvas extends React.Component {
         if (this.state.drawing) {
             this.setState({ finalMousePos: [e.pageX, e.pageY - this.offset] });
             if (this.state.type === 'draw') {
-                this.freeFormPoints.push([e.pageX, e.pageY - this.offset]);
+                this.setState({freeFormPoints: [...this.state.freeFormPoints, [e.pageX, e.pageY - this.offset]]});
             }
         }
         let temp;
@@ -304,8 +304,8 @@ export class Canvas extends React.Component {
                 newObject = new Line(initX, initY, finalX, finalY);
                 break;
             case 'draw':
-                newObject = new FreeForm(this.freeFormPoints);
-                this.freeFormPoints = [];
+                newObject = new FreeForm(this.state.freeFormPoints);
+                this.setState({freeFormPoints: []});
                 break;
             default:
                 newObject = null;
@@ -372,7 +372,7 @@ export class Canvas extends React.Component {
                 (new Line(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
                 break;
             case 'draw':
-                (new FreeForm(ctx, this.freeFormPoints)).preview(ctx, this.freeFormPoints);
+                (new FreeForm(ctx, state.freeFormPoints)).preview(ctx, state.freeFormPoints);
                 break;
             default:
                 if (state.moving) {
@@ -405,6 +405,10 @@ export class Canvas extends React.Component {
 
     setLine() {
         this.setState({ type: 'line', initMousePos: [], finalMousePos: [] });
+    }
+
+    setFreeForm() {
+        this.setState({ type: 'draw', initMousePos: [], finalMousePos: [] });
     }
 
     doClear() {
@@ -500,11 +504,6 @@ export class Canvas extends React.Component {
         document.body.appendChild(hyperlink);
         hyperlink.click();
         document.body.removeChild(hyperlink);
-    }
-
-
-    setFreeForm() {
-        this.setState({ type: 'draw', initMousePos: [], finalMousePos: [] });
     }
 
     createGraph(type) {
