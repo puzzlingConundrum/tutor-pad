@@ -30,16 +30,14 @@ export class Canvas extends React.Component {
             obj: [],
             initMousePos: [], // 0: x, 1: y
             finalMousePos: [], // 0: x, 1: y
-            //text: 'select',
-            // setText: ''  
+            //textToShow: ''
         };
         this.canvasRef = React.createRef();
         this.offset = 60;
         this.mouseDistance = [];
         this.mouseRange = 20;
 
-        //this.textToShow = this.textToShow.bind(this);
-   // this.onKeyPressed = this.onKeyPressed.bind(this);
+         // this.onKeyPressed = this.onKeyPressed.bind(this);
     }
 
     setType(type) {
@@ -227,6 +225,7 @@ export class Canvas extends React.Component {
         alert('a key is pressed');
         let context = this.canvasRef.current.getContext('2d');
         context.addEventListener('keydown', function (event) {
+                //just add the key to the this.state obj
                 alert('a key is pressed');
         }); 
     }
@@ -334,12 +333,10 @@ export class Canvas extends React.Component {
                     </div>
                 </Form.Row>
 
-                <div style = {{position: "fixed", bottom : 8, padding:10}}>
-                    <button onClick = {() => {}}> Undo </button>
-                    <button onClick = {() => {}}> Redo </button>
-                </div>
+                
+                <div onKeyDown={this.keyPressed}></div>
 
-                <div style = {{position: "fixed", bottom : 50, padding:10}}>
+                <div style = {{position: "fixed", bottom : 10, padding:10}}>
                     <input 
                         type="text"
                         value=""
@@ -349,7 +346,6 @@ export class Canvas extends React.Component {
                     />
                 </div>
 
-                <div onKeyDown={this.keyPressed}></div>
             </>
         );
     }
