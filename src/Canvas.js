@@ -633,16 +633,35 @@ export class Canvas extends React.Component {
         console.log(i + " save")
         let text = this.replayManager.saveReplayAsString(i);
 
-        navigator.clipboard.writeText(text);
+        this.sendSaveDataToServer(text);
+    }
+
+    sendSaveDataToServer(savedatastring){
+        // create a new XMLHttpRequest
+        var xhr = new XMLHttpRequest();
+    
+        // get a callback when the server responds
+        xhr.addEventListener('load', () => {
+          // update the state of the component with the result here
+          var saveFileUniqueID = xhr.responseText;
+          //use this to ask the server to retrieve data
+          console.log(saveFileUniqueID);
+          navigator.clipboard.writeText(saveFileUniqueID);
+        })
+
+        // open the request with the verb and the url
+        xhr.open('POST', '/api/v1/upload');
+    
+        //construct data object
+        var data = new FormData();
+        data.append("data", savedatastring);
+    
+        // send the request
+        xhr.send(data);
     }
 
     getSaveDataFromServer(saveFileUniqueID) {
-        this.replayManager.loadEventFromString(saveFileUniqueID)
-        
-
-        this.setState({})
-
-        //console.log(saveFileUniqueID)
+        console.log(saveFileUniqueID)
         // create a new XMLHttpRequest
         var xhr = new XMLHttpRequest();
 
@@ -654,7 +673,7 @@ export class Canvas extends React.Component {
             this.replayManager.loadEventFromString(savedatastring);
 
             this.setState({});
-            console.log(savedatastring);
+            //console.log(savedatastring);
         })
 
         // open the request with the verb and the url
