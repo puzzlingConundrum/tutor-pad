@@ -9,7 +9,6 @@ import { Circle } from './objects/Circle.js';
 import { Line } from './objects/Line.js';
 import { BoundingBox } from './objects/BoundingBox.js';
 import { TextBox } from './objects/TextBox.js';
-import { Form, Navbar, Nav, ButtonGroup, ToggleButton } from 'react-bootstrap';
 import { FreeForm } from './objects/FreeForm.js';
 import { Graph } from './objects/Graph.js';
 // Replay
@@ -53,8 +52,7 @@ export class Canvas extends React.Component {
 
             initMousePos: [], // 0: x, 1: y
             finalMousePos: [], // 0: x, 1: y
-            textToShow: 'TextToShow'
-
+            textToShow: 'TextToShow',
             type: 'select',
 
             // Recording
@@ -330,7 +328,7 @@ export class Canvas extends React.Component {
                 break;
 
             case 'text box':
-                newObject = new TextBox( initX, initY, finalX, finalY);
+                newObject = new TextBox(this.state.textToShow, initX, initY, finalX, finalY);
                 break; 
 
             case 'draw':
@@ -415,7 +413,7 @@ export class Canvas extends React.Component {
                 (new FreeForm(ctx, state.freeFormPoints)).preview(ctx, state.freeFormPoints);
                 break;
             case 'text box':
-                (new TextBox(context,  initX, initY, finalX, finalY)).preview(context, this.state.textToShow, initX, initY, finalX, finalY); 
+                (new TextBox(ctx, initX, initY, finalX, finalY)).preview(ctx, state.textToShow, initX, initY, finalX, finalY); 
                 break; 
             default:
                 if (state.moving) {
@@ -629,12 +627,9 @@ export class Canvas extends React.Component {
                                     {((this.state.type === 'line') && <BsSlashSquareFill />) || <BsSlash />}
                                 </ToggleButton>
 
-
                                 <ToggleButton title="Text tool" variant='link' type='radio' onClick={e => this.setTextBox()}>
                                     {<BsCursorText />}
                                 </ToggleButton>
-
-                               
 
                                 <ToggleButton title="Draw freeform" variant='link' type='radio' onClick={e => this.setFreeForm()}>
                                     {((this.state.type === 'draw') && <BsPencilSquare />) || <BsPencil />}
@@ -687,9 +682,12 @@ export class Canvas extends React.Component {
                                 <ToggleButton className={"tab-buttons"} title="Load uuid" variant='link' type='radio' onChange={() => this.getSaveDataFromServer(this.uuid)}>
                                     {<BiKey size={30} />}
                                 </ToggleButton>
+                                {/*}
                                 <ToggleButton className={"tab-buttons"} title="Upload file" variant='link' type='radio' onChange={""}>
                                     {<BiUpload size={30} />}
                                 </ToggleButton>
+                        */}
+
                             </ButtonGroup>
                         </Nav>
                     </Navbar>
@@ -727,10 +725,11 @@ export class Canvas extends React.Component {
                         value={this.state.textToShow} 
                         //onKeyDown={this.keyPressed}
 
-                        onChange = {(e) => {
+                        onChange={(e) => {
                            // this.keyPressed(e);
                            //console.log(e.target.value);
-                            this.state.textToShow = e.target.value;
+                           this.setState({textToShow: e.target.value});
+
                         }}
                     />
                 </div>

@@ -3,6 +3,8 @@ import {Shape} from './Shape.js';
 export class TextBox extends Shape {
     constructor(text, initX, initY, finalX, finalY, color='#000000', z=0) {
         super(initX, initY, finalX, finalY, color, z);
+        this.text = text;
+        this.type = 'text box'
     }
 
     draw(context) {
@@ -16,7 +18,4 @@ export class TextBox extends Shape {
          context.stroke();
     }
 
-    getType() {
-        return 'text box';
-    }
 }

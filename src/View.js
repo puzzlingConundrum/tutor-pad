@@ -36,7 +36,7 @@ export class View extends React.Component {
             <>
                 <Form.Row>
                     <div className="App">
-                        <Canvas width={2000} height={2000} ref={this.canvasRef}/>
+                        <Canvas width={window.innerWidth} height={2000} ref={this.canvasRef}/>
                     </div>
                 </Form.Row>
             </>
