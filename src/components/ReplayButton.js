@@ -12,13 +12,13 @@ export default class ReplayButton extends React.Component {
     render() {
         return (
             <ButtonGroup toggle className='replay-button'>
-                <ToggleButton variant='link' type='radio' onChange={this.props.replaySelect(this.props.num-1)}>
+                <ToggleButton variant='link' type='radio' onChange={() => this.props.replaySelect(this.props.num-1)}>
                     <p class='replay-button-items'>{"Replay #" + this.props.num}</p>
                 </ToggleButton>
-                <ToggleButton variant='link' type='radio'>
+                <ToggleButton variant='link' type='radio' onChange={() => this.props.saveSelect(this.props.num-1)}>
                     <BiSave class='replay-button-items'/>
                 </ToggleButton>
-                <ToggleButton variant='link' type='radio'>
+                <ToggleButton variant='link' type='radio' onChange={() => this.props.downloadSelect(this.props.num-1)}>
                     <BiDownload class='replay-button-items'/>
                 </ToggleButton>
             </ButtonGroup>

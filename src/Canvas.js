@@ -451,9 +451,9 @@ export class Canvas extends React.Component {
             listItemArray.push(
             <li>
                 <ReplayButton 
-                    replaySelect={(i) => this.selectReplay.bind(this)}
-                    saveSelect={(i) => this.selectSave}
-                    downloadSelect={() => this.selectDownload}
+                    replaySelect={this.selectReplay.bind(this)}
+                    saveSelect={this.selectSave.bind(this)}
+                    downloadSelect={this.selectDownload.bind(this)}
                     num={i}>
                 </ReplayButton>
             </li>)
@@ -469,11 +469,11 @@ export class Canvas extends React.Component {
     }
 
     selectSave(i) {
-        
+        console.log(i+"save")
     }
 
     selectDownload(i) {
-
+        console.log(i+"download")
     }
 
 
