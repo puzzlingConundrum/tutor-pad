@@ -37,7 +37,7 @@ import { BiEraser, BiKey, BiPause, BiPlay, BiUpload, BiUpvote, BiVideoRecording 
 import ReplayButton from './components/ReplayButton';
 
 
-export class Canvas extends React.Component { 
+export class Canvas extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -69,7 +69,7 @@ export class Canvas extends React.Component {
         this.mouseRange = 20;
 
 
-         // this.onKeyPressed = this.onKeyPressed.bind(this);
+        // this.onKeyPressed = this.onKeyPressed.bind(this);
 
         this.canvasRef = React.createRef();
         this.offset = 60;
@@ -80,7 +80,7 @@ export class Canvas extends React.Component {
         this.eventRecorder = new EventRecorder();
         this.eventPlayer = new EventPlayer();
         this.replayManager = new ReplayManager();
-        
+
         this.uuid = null;
     }
 
@@ -102,7 +102,7 @@ export class Canvas extends React.Component {
                  * I don't think playing the entire array does anything, since it'll just replace what was already
                  * there within the same frame right? correct me if I'm wrong
                  */
-                break; 
+                break;
             }
 
             // Auto-end on last frame 
@@ -184,7 +184,7 @@ export class Canvas extends React.Component {
                 this.mouseDistance = [e.pageX - selectedShape.initX, e.pageY - selectedShape.initY];
 
                 if (selectedShape.type === 'graph') {
-                    this.setState({editGraph: selectedShape});
+                    this.setState({ editGraph: selectedShape });
                 }
             }
 
@@ -238,7 +238,7 @@ export class Canvas extends React.Component {
 
     move(e) {
         document.body.style.cursor = 'default';
-        if (this.state.selected) {
+        if (this.state.selected && this.state.selected.type !== 'text box') {
             if (this.isOnLeftSide(e.pageX, e.pageY, this.state.selected)) {
                 document.body.style.cursor = 'ew-resize';
             } else if (this.isOnRightSide(e.pageX, e.pageY, this.state.selected)) {
@@ -257,11 +257,11 @@ export class Canvas extends React.Component {
         if (this.state.drawing) {
             this.setState({ finalMousePos: [e.pageX, e.pageY - this.offset] });
             if (this.state.type === 'draw') {
-                this.setState({freeFormPoints: [...this.state.freeFormPoints, [e.pageX, e.pageY - this.offset]]});
+                this.setState({ freeFormPoints: [...this.state.freeFormPoints, [e.pageX, e.pageY - this.offset]] });
             }
         }
         let temp;
-        if (this.state.resizeX && this.state.selected) {
+        if (this.state.resizeX && this.state.selected && this.state.selected.type !== 'text box') {
             temp = this.state.selected;
             if (this.isOnLeftSide(e.pageX, e.pageY, this.state.selected)) {
                 temp.initX = e.pageX;
@@ -269,10 +269,10 @@ export class Canvas extends React.Component {
                 temp.finalX = e.pageX;
             }
             this.setState({
-                initMousePos: [temp.initX, temp.initY], 
+                initMousePos: [temp.initX, temp.initY],
                 finalMousePos: [temp.finalX, temp.finalY]
             });
-        } else if (this.state.resizeY && this.state.selected) {
+        } else if (this.state.resizeY && this.state.selected && this.state.selected.type !== 'text box') {
             // so is selected a boolean or a shape?
             temp = this.state.selected;
             if (this.isOnTopSide(e.pageX, e.pageY, this.state.selected)) {
@@ -281,7 +281,7 @@ export class Canvas extends React.Component {
                 temp.finalY = e.pageY - this.offset;
             }
             this.setState({
-                initMousePos: [temp.initX, temp.initY], 
+                initMousePos: [temp.initX, temp.initY],
                 finalMousePos: [temp.finalX, temp.finalY]
             });
         } else if (this.state.moving) {
@@ -328,12 +328,12 @@ export class Canvas extends React.Component {
                 break;
 
             case 'text box':
-                newObject = new TextBox(this.state.textToShow, initX, initY, finalX, finalY);
-                break; 
+                newObject = new TextBox(this.state.textToShow, initX, initY, initX+50, initY-20);
+                break;
 
             case 'draw':
                 newObject = new FreeForm(this.state.freeFormPoints);
-                this.setState({freeFormPoints: []});
+                this.setState({ freeFormPoints: [] });
                 break;
 
             default:
@@ -347,12 +347,12 @@ export class Canvas extends React.Component {
             finalMousePos: []
         });
     }
- 
+
 
     keyPressed(e) {
         alert('a key is pressed');
-       // this.setText(e.target.value)
-       //this.state.textToShow = {e};
+        // this.setText(e.target.value)
+        //this.state.textToShow = {e};
     }
 
 
@@ -385,11 +385,11 @@ export class Canvas extends React.Component {
             if (!o)
                 continue;
             // when replaying, don't draw bounding boxes
-            if ( this.state.isReplaying &&
+            if (this.state.isReplaying &&
                 !(o.type !== "bounding box" && (o !== state.moving || o !== state.selected))) {
                 continue;
             }
-   
+
             o.draw(ctx);
         }
 
@@ -413,14 +413,22 @@ export class Canvas extends React.Component {
                 (new FreeForm(ctx, state.freeFormPoints)).preview(ctx, state.freeFormPoints);
                 break;
             case 'text box':
-                (new TextBox(ctx, initX, initY, finalX, finalY)).preview(ctx, state.textToShow, initX, initY, finalX, finalY); 
-                break; 
+                (new TextBox(ctx, initX, initY, finalX, finalY)).preview(ctx, state.textToShow, initX, initY, finalX, finalY);
+                break;
             default:
                 if (state.moving) {
-                    state.moving.preview(ctx, initX, initY, finalX, finalY);
-                } 
+                    if (state.moving.type === 'text box') {
+                        state.moving.preview(ctx, state.textToShow, initX, initY, finalX, finalY);
+                    } else {
+                        state.moving.preview(ctx, initX, initY, finalX, finalY);
+                    }
+                }
                 if (state.selected) {
-                    state.selected.preview(ctx, initX, initY, finalX, finalY);
+                    if (state.selected.type === 'text box') {
+                        state.selected.preview(ctx, state.textToShow, initX, initY, finalX, finalY);
+                    } else {
+                        state.selected.preview(ctx, initX, initY, finalX, finalY);
+                    }
                 }
                 break;
         }
@@ -452,7 +460,7 @@ export class Canvas extends React.Component {
     setTextBox() {
         this.setState({ type: 'text box', initMousePos: [], finalMousePos: [] });
     }
-   
+
 
     setFreeForm() {
         this.setState({ type: 'draw', initMousePos: [], finalMousePos: [] });
@@ -493,7 +501,7 @@ export class Canvas extends React.Component {
             this.setState({ isReplaying: true });
             this.eventPlayer = new EventPlayer();
             this.eventPlayer.eventArray = [...this.replayManager.getReplayByIndex(this.replayIndex).eventArray];
-            
+
             this.startTime = Date.now();
         } else {
             // stop recording
@@ -536,13 +544,13 @@ export class Canvas extends React.Component {
     }
 
     selectSave(i) {
-        console.log(i+" save")
+        console.log(i + " save")
         let text = this.replayManager.saveReplayAsString(i);
 
         navigator.clipboard.writeText(text);
     }
 
-    getSaveDataFromServer(saveFileUniqueID){
+    getSaveDataFromServer(saveFileUniqueID) {
         console.log(saveFileUniqueID)
         // create a new XMLHttpRequest
         var xhr = new XMLHttpRequest();
@@ -570,7 +578,7 @@ export class Canvas extends React.Component {
     }
 
     selectDownload(i) {
-        console.log(i+"download")
+        console.log(i + "download")
 
         //PLACEHOLDER DOWNLOAD TEXT
         var downloadText = "Mio best girl pog ****************************"
@@ -581,7 +589,7 @@ export class Canvas extends React.Component {
 
         const hyperlink = document.createElement('a');
         hyperlink.href = fileDownloadUrl;
-        hyperlink.download="sav.txt"
+        hyperlink.download = "sav.txt"
 
         document.body.appendChild(hyperlink);
         hyperlink.click();
@@ -610,7 +618,7 @@ export class Canvas extends React.Component {
                         <Nav>
                             <ButtonGroup toggle>
 
-                                
+
                                 <ToggleButton title="Selection tool" variant='link' type='radio' onClick={e => this.setCursor()}>
                                     {((this.state.type === 'select') && <BsCursorFill />) || <BsCursor />}
                                 </ToggleButton>
@@ -655,18 +663,38 @@ export class Canvas extends React.Component {
                                 (
                                     <Form.Row>
                                         <Col xs={3}>
-                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[0]} onChange={e => this.state.editGraph.coefficients[0] = e.target.value} style={{width: '75px'}}></Form.Control>
+                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[0]} onChange={e => this.state.editGraph.coefficients[0] = e.target.value} style={{ width: '75px' }}></Form.Control>
                                         </Col>
                                         <Col xs={3}>
-                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[1]} onChange={e => this.state.editGraph.coefficients[1] = e.target.value} style={{width: '75px'}}></Form.Control>
+                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[1]} onChange={e => this.state.editGraph.coefficients[1] = e.target.value} style={{ width: '75px' }}></Form.Control>
                                         </Col>
                                         <Col xs={3}>
-                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[2]} onChange={e => this.state.editGraph.coefficients[2] = e.target.value} style={{width: '75px'}}></Form.Control>
+                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[2]} onChange={e => this.state.editGraph.coefficients[2] = e.target.value} style={{ width: '75px' }}></Form.Control>
                                         </Col>
                                         <Col xs={3}>
-                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[3]} onChange={e => this.state.editGraph.coefficients[3] = e.target.value} style={{width: '75px'}}></Form.Control>
+                                            <Form.Control type='number' defaultValue={this.state.editGraph.coefficients[3]} onChange={e => this.state.editGraph.coefficients[3] = e.target.value} style={{ width: '75px' }}></Form.Control>
                                         </Col>
                                     </Form.Row>
+                                )
+                            }
+
+                            {
+                                this.state.type === 'text box' &&
+                                (
+                                    <div>
+                                        <Form.Control
+                                            type="text"
+                                            value={this.state.textToShow}
+                                            //onKeyDown={this.keyPressed}
+
+                                            onChange={(e) => {
+                                                // this.keyPressed(e);
+                                                //console.log(e.target.value);
+                                                this.setState({ textToShow: e.target.value });
+
+                                            }}
+                                        />
+                                    </div>
                                 )
                             }
                         </Nav>
@@ -674,7 +702,7 @@ export class Canvas extends React.Component {
                         <Nav className="ml-auto">
                             <form>
                                 <label>
-                                    <input type="text" name="name" onChange={(e) => {this.uuid = e.target.value}}/>
+                                    <input type="text" name="name" onChange={(e) => { this.uuid = e.target.value }} />
                                 </label>
                             </form>
 
@@ -693,51 +721,38 @@ export class Canvas extends React.Component {
                     </Navbar>
                 </Form.Row>
 
-                <div className="sidebar">
-                    <p>
-                        <ul class="replay-list">
-                            {this.showReplays()}
-                        </ul>
-                    </p>
-                </div>
+
 
                 <Form.Row>
-                    <div>
+                    <Col xs={8}>
                         <canvas
                             ref={this.canvasRef}
                             width={this.props.width}
                             height={this.props.height}
                             onMouseDown={e => this.mouseDown(e)}
                             onMouseMove={e => this.move(e)}
-                            onMouseUp={e => this.mouseUp(e)} 
-                           // onKeyDown={this.keyPressed}
- 
+                            onMouseUp={e => this.mouseUp(e)}
+                        // onKeyDown={this.keyPressed}
+
 
                         ></canvas>
-                    </div>
+                    </Col>
+
+                    <Col>
+                        <div className="sidebar" style={{ width: '448px' }}>
+                            <p>
+                                <ul class="replay-list">
+                                    {this.showReplays()}
+                                </ul>
+                            </p>
+                        </div>
+                    </Col>
                 </Form.Row>
-
-
-
-                <div style = {{position: "fixed", bottom : 10, padding:10}}>
-                    <input 
-                        type="text"
-                        value={this.state.textToShow} 
-                        //onKeyDown={this.keyPressed}
-
-                        onChange={(e) => {
-                           // this.keyPressed(e);
-                           //console.log(e.target.value);
-                           this.setState({textToShow: e.target.value});
-
-                        }}
-                    />
-                </div>
 
                 {/* <div onKeyDown={this.keyPressed}></div> */}
             </>
         );
     }
 
-    
+
 }
