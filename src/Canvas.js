@@ -451,7 +451,6 @@ export class Canvas extends React.Component {
 
     }
 
-
     showReplays() {
         let listItemArray = []
         let i = 1;
@@ -477,7 +476,7 @@ export class Canvas extends React.Component {
         this.replayIndex = i;
         console.log(i)
         // Auto play 
-        //this.setReplaying();
+        this.setReplaying();
     }
 
     selectSave(i) {
@@ -529,33 +528,34 @@ export class Canvas extends React.Component {
                         <Nav>
                             <ButtonGroup toggle>
 
-                                <ToggleButton variant='link' type='radio' onClick={e => this.setCursor()}>
+                                
+                                <ToggleButton title="Selection tool" variant='link' type='radio' onClick={e => this.setCursor()}>
                                     {((this.state.type === 'select') && <BsCursorFill />) || <BsCursor />}
                                 </ToggleButton>
 
-                                <ToggleButton variant='link' type='radio' onClick={e => this.setSquare()}>
+                                <ToggleButton title="Draw sqaure" variant='link' type='radio' onClick={e => this.setSquare()}>
                                     {((this.state.type === 'square') && <BsSquareFill />) || <BsSquare />}
                                 </ToggleButton>
 
-                                <ToggleButton variant='link' type='radio' onClick={e => this.setCircle()}>
+                                <ToggleButton title="Draw circle" variant='link' type='radio' onClick={e => this.setCircle()}>
                                     {((this.state.type === 'circle') && <BsCircleFill />) || <BsCircle />}
                                 </ToggleButton>
 
-                                <ToggleButton variant='link' type='radio' onClick={e => this.setLine()}>
+                                <ToggleButton title="Draw line" variant='link' type='radio' onClick={e => this.setLine()}>
                                     {((this.state.type === 'line') && <BsSlashSquareFill />) || <BsSlash />}
                                 </ToggleButton>
 
-                                <ToggleButton variant='link' type='radio' onClick={e => this.setLine()}>
+                                <ToggleButton title="Text tool" variant='link' type='radio' onClick={e => this.setLine()}>
                                     {<BsCursorText />}
                                 </ToggleButton>
 
 
-                                <ToggleButton variant='link' type='radio' onClick={e => this.setFreeForm()}>
+                                <ToggleButton title="Draw freeform" variant='link' type='radio' onClick={e => this.setFreeForm()}>
                                     {((this.state.type === 'draw') && <BsPencilSquare />) || <BsPencil />}
                                 </ToggleButton>
 
                                 <Dropdown>
-                                    <Dropdown.Toggle variant='link'>{<BsGraphUp />}</Dropdown.Toggle>
+                                    <Dropdown.Toggle title="Graphs" variant='link'>{<BsGraphUp />}</Dropdown.Toggle>
                                     <Dropdown.Menu>
                                         <Dropdown.Item onClick={e => this.createGraph('linear')}>Linear</Dropdown.Item>
                                         <Dropdown.Item onClick={e => this.createGraph('quadratic')}>Quadratic</Dropdown.Item>
@@ -563,9 +563,9 @@ export class Canvas extends React.Component {
                                     </Dropdown.Menu>
                                 </Dropdown>
 
-                                <ToggleButton variant='link' type='radio' onClick={e => this.doClear()}>{<BiEraser />}</ToggleButton>
-                                <ToggleButton variant='link' type='radio' onChange={e => this.setRecording()}>{this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}</ToggleButton>
-                                <ToggleButton variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
+                                <ToggleButton title="Clear canvas" variant='link' type='radio' onClick={e => this.doClear()}>{<BiEraser />}</ToggleButton>
+                                <ToggleButton title="Record canvas" variant='link' type='radio' onChange={e => this.setRecording()}>{this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}</ToggleButton>
+                                <ToggleButton title="Play recording" variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
 
                             </ButtonGroup>
                         </Nav>
