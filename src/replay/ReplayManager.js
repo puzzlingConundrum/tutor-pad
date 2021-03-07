@@ -1,11 +1,12 @@
-
+import Replay from './Replay';
+import CanvasEvent from './CanvasEvent';
 
 /**
  * Class containing a map of eventArrays, called replays
  */
 export default class ReplayManager {
     constructor () {
-        this.replayMap = new Map();
+        this.replayList = [];
     }
 
     /**
@@ -13,11 +14,55 @@ export default class ReplayManager {
      * @param {Array} replay An eventArray obtained from EventRecorder
      */
     addReplay(replay) {
-        this.replayMap.set(Date.now(), replay);
+        this.replayList.push(new Replay('', Date.now(), replay));
     }
 
+    // ======================== STRING CONVERSION =================
+    eventArraytoString(eventArray) {
+        let stringData = ""
+
+        for (let event of eventArray) {
+
+            let time = String(event.time);
+            let stateObject = JSON.stringify(event.state)
+            stringData += time + ":" + stateObject + "\n";
+        }
+
+        return stringData;
+    }
+
+    stringToEventArray(text) {
+        let eventArray = [];
+
+        let lines = text.split('\n');
+        for (let line of lines) {
+            let parts = line.split(':');
+            let state = JSON.parse(parts[1]);
+            eventArray.push(new CanvasEvent(parts[0], state));
+        }
+        
+        return eventArray;
+    }
+
+    // ======================== DATA SAVING ========================
+
+    /**
+     * @param {int} i Index to get
+     * @return Replay data as string
+     */
+    saveReplayAsString(i) {
+        return this.eventArraytoString(this.getReplayByIndex(i).eventArray);
+    }
+
+    loadEventFromString(eventString) {
+        let loadedReplay = new Replay('', Date.now(), this.stringToEventArray(eventString))
+        this.replayList.push(loadedReplay);
+        return loadedReplay;
+    }
+
+    // ======================== MAP CONTROL =======================
     replayCount() {
-        return this.replayMap.size;
+        return this.replayList.length;
     }
 
     getReplayKeys() {
@@ -25,7 +70,7 @@ export default class ReplayManager {
     }
 
     getLatestReplay() {
-        return this.getReplayIndex(this.replayCount - 1);
+        return this.replayList[this.replayList.length - 1];
     }
 
     /**
@@ -33,25 +78,7 @@ export default class ReplayManager {
      * @param {int} i Index of replay to get
      * @returns 
      */
-    getReplayIndex(i) {
-        let index = 0;
-        for (let replay of this.replayMap.values()) {
-            if (i === index) {
-                return replay;
-            }
-            index++;
-        }
-
-
-        throw "Index out of replay list range!"      
-    }
-
-    /**
-     * 
-     * @param {Date} key Datetime object of when the replay was stored. Can be obtained through getReplayKeys
-     * @returns 
-     */
-    getReplay(key) {
-        return this.replayMap.get(key);
+    getReplayByIndex(i) {
+        return this.replayList[i];  
     }
 }

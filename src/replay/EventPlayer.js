@@ -42,13 +42,14 @@ export default class EventPlayer {
             while(this.eventArray[this.index].time < ms) {
                 //console.log(this.eventArray[0].time);
 
+                // TODO: We might be able to optimize the frame rate by returning one event per tick (updateFrame)
+                //  since I'm not sure if returning an array of all event per frame does anything
                 let state = this.eventArray[this.index].state;
                 this.index++;
                 currentArray.push(state)
 
                 if (this.index >= this.length)
                     break;
-
             } 
         } else {
             this.isReplaying = false;

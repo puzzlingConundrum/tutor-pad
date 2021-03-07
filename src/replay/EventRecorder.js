@@ -17,33 +17,7 @@ export default class EventRecorder {
         this.isRecording = false;
     }
 
-    eventArraytoString() {
-        let stringData = ""
 
-        for (let event of this.eventArray) {
-
-            let time = String(event.time);
-            let stateObject = JSON.stringify(event.state)
-            stringData += time + ":" + stateObject + "\n";
-        }
-
-        return stringData;
-    }
-
-    StringToEventArray(text) {
-        let eventArray = [];
-
-        let lines = text.split('\n');
-        for (let line of lines) {
-            let parts = line.split(':');
-            let state = JSON.parse(parts[1]);
-            eventArray.push(new CanvasEvent(parts[0], state));
-        }
-
-        this.eventArray = eventArray;
-
-        return eventArray;
-    }
 
     sendTextToServer() {
         // create a new XMLHttpRequest

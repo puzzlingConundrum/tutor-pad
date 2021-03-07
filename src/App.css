@@ -41,6 +41,7 @@
   width: 20%;
   height: 100%;
   margin-right: 0px;
+  padding:0px;
   float: right;
   background-color: #282c34
 }
@@ -48,13 +49,39 @@
 .replay-list {
   text-align: left;
   align-items: left;
+  list-style-type: none;
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margins */
 }
 
 .replay-button {
   margin-left:0px;
+  width: 100%;
 }
 
-.replay-button-items {
+.replay-button-on {
+  background-color: #505257; /* for when replay is replaying */
+}
+
+.replay-toggle-button {
+  margin-right:30%;
+  
+  color: white;
+
+}
+
+form {
+  margin-top: 2%;
+}
+
+
+.replay-button-icons {
+  size:50px;
   text-decoration: false;
+  
+  
+}
+
+.tab-buttons {
   color: white;
 }

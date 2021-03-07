@@ -31,7 +31,7 @@ import {
     BsPencilSquare,
     BsGraphUp
 } from 'react-icons/bs';
-import { BiEraser, BiPause, BiPlay, BiVideoRecording } from 'react-icons/bi'
+import { BiEraser, BiKey, BiPause, BiPlay, BiUpload, BiUpvote, BiVideoRecording } from 'react-icons/bi'
 
 import ReplayButton from './components/ReplayButton';
 
@@ -56,7 +56,9 @@ export class Canvas extends React.Component {
             // Recording
             isRecording: false,
             isReplaying: false,
-            freeFormPoints: []
+            freeFormPoints: [],
+
+            uuid: null,
         };
         this.canvasRef = React.createRef();
         this.offset = 60;
@@ -71,7 +73,8 @@ export class Canvas extends React.Component {
         this.eventRecorder = new EventRecorder();
         this.eventPlayer = new EventPlayer();
         this.replayManager = new ReplayManager();
-
+        
+        this.uuid = null;
     }
 
     // ======================== REPLAY FEATURE ====================================
@@ -86,8 +89,14 @@ export class Canvas extends React.Component {
             let replayTime = this.eventPlayer.getLength();
 
             let stateArray = this.eventPlayer.replay(this.ms, ctx);
-            for (let state of stateArray)
+            for (let state of stateArray) {
                 this.drawCanvas(ctx, state);
+                /**
+                 * I don't think playing the entire array does anything, since it'll just replace what was already
+                 * there within the same frame right? correct me if I'm wrong
+                 */
+                break; 
+            }
 
             // Auto-end on last frame 
             if (this.ms > replayTime) {
@@ -445,7 +454,7 @@ export class Canvas extends React.Component {
             // Start recording
             this.setState({ isReplaying: true });
             this.eventPlayer = new EventPlayer();
-            this.eventPlayer.eventArray = [...this.replayManager.getReplayIndex(this.replayIndex)];
+            this.eventPlayer.eventArray = [...this.replayManager.getReplayByIndex(this.replayIndex).eventArray];
             
             this.startTime = Date.now();
         } else {
@@ -455,11 +464,15 @@ export class Canvas extends React.Component {
 
     }
 
+    // ======================== Button functions =================
+
+
+
     showReplays() {
         let listItemArray = []
         let i = 1;
 
-        for (let replayKey of this.replayManager.getReplayKeys()) {
+        for (let replay of this.replayManager.replayList) {
 
             listItemArray.push(
                 <li>
@@ -467,6 +480,7 @@ export class Canvas extends React.Component {
                         replaySelect={this.selectReplay.bind(this)}
                         saveSelect={this.selectSave.bind(this)}
                         downloadSelect={this.selectDownload.bind(this)}
+                        date={new Date(replay.date).toLocaleTimeString() + ", " + new Date(replay.date).toLocaleDateString()}
                         num={i}>
                     </ReplayButton>
                 </li>)
@@ -485,6 +499,36 @@ export class Canvas extends React.Component {
 
     selectSave(i) {
         console.log(i+" save")
+        let text = this.replayManager.saveReplayAsString(i);
+
+        navigator.clipboard.writeText(text);
+    }
+
+    getSaveDataFromServer(saveFileUniqueID){
+        console.log(saveFileUniqueID)
+        // create a new XMLHttpRequest
+        var xhr = new XMLHttpRequest();
+
+        // get a callback when the server responds
+        xhr.addEventListener('load', () => {
+            // update the state of the component with the result here
+            var savedatastring = xhr.responseText;
+            //use this to ask the server to retrieve data
+            this.replayManager.loadEventFromString(savedatastring);
+
+            this.setState({});
+            console.log(savedatastring);
+        })
+
+        // open the request with the verb and the url
+        xhr.open('POST', '/api/v1/querydata');
+
+        //construct data object
+        var data = new FormData();
+        data.append("data", saveFileUniqueID);
+
+        // send the request
+        xhr.send(data);
     }
 
     selectDownload(i) {
@@ -566,6 +610,23 @@ export class Canvas extends React.Component {
                                 <ToggleButton title="Record canvas" variant='link' type='radio' onChange={e => this.setRecording()}>{this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}</ToggleButton>
                                 <ToggleButton title="Play recording" variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
 
+                            </ButtonGroup>
+                        </Nav>
+
+                        <Nav className="ml-auto">
+                            <form>
+                                <label>
+                                    <input type="text" name="name" onChange={(e) => {this.uuid = e.target.value}}/>
+                                </label>
+                            </form>
+
+                            <ButtonGroup toggle className="">
+                                <ToggleButton className={"tab-buttons"} title="Load uuid" variant='link' type='radio' onChange={() => this.getSaveDataFromServer(this.uuid)}>
+                                    {<BiKey size={30} />}
+                                </ToggleButton>
+                                <ToggleButton className={"tab-buttons"} title="Upload file" variant='link' type='radio' onChange={""}>
+                                    {<BiUpload size={30} />}
+                                </ToggleButton>
                             </ButtonGroup>
                         </Nav>
                     </Navbar>
