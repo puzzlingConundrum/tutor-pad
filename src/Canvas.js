@@ -8,6 +8,8 @@ import { Rectangle } from './objects/Rectangle.js';
 import { Circle } from './objects/Circle.js';
 import { Line } from './objects/Line.js';
 import { BoundingBox } from './objects/BoundingBox.js';
+import { TextBox } from './objects/TextBox.js';
+import { Form, Navbar, Nav, ButtonGroup, ToggleButton } from 'react-bootstrap';
 import { FreeForm } from './objects/FreeForm.js';
 import { Graph } from './objects/Graph.js';
 // Replay
@@ -36,7 +38,7 @@ import { BiEraser, BiKey, BiPause, BiPlay, BiUpload, BiUpvote, BiVideoRecording 
 import ReplayButton from './components/ReplayButton';
 
 
-export class Canvas extends React.Component {
+export class Canvas extends React.Component { 
     constructor(props) {
         super(props);
         this.state = {
@@ -51,6 +53,8 @@ export class Canvas extends React.Component {
 
             initMousePos: [], // 0: x, 1: y
             finalMousePos: [], // 0: x, 1: y
+            textToShow: 'TextToShow'
+
             type: 'select',
 
             // Recording
@@ -59,11 +63,16 @@ export class Canvas extends React.Component {
             freeFormPoints: [],
 
             editGraph: null
+
         };
         this.canvasRef = React.createRef();
         this.offset = 60;
         this.mouseDistance = [];
         this.mouseRange = 20;
+
+
+         // this.onKeyPressed = this.onKeyPressed.bind(this);
+
         this.canvasRef = React.createRef();
         this.offset = 60;
 
@@ -119,6 +128,7 @@ export class Canvas extends React.Component {
             this.canvasRef = this.props.ref;
         }
 
+
     }
 
     setType(type) {
@@ -163,7 +173,9 @@ export class Canvas extends React.Component {
     mouseDown(e) {
         let context = this.canvasRef.current.getContext('2d');
 
+
         // If selecting tool on
+
         if (this.state.type === 'select') {
             // Select shape with greatest Z value
             var selectedShape = this.getComponentWithMaxZValue(e.pageX, e.pageY);
@@ -316,10 +328,16 @@ export class Canvas extends React.Component {
             case 'line':
                 newObject = new Line(initX, initY, finalX, finalY);
                 break;
+
+            case 'text box':
+                newObject = new TextBox( initX, initY, finalX, finalY);
+                break; 
+
             case 'draw':
                 newObject = new FreeForm(this.state.freeFormPoints);
                 this.setState({freeFormPoints: []});
                 break;
+
             default:
                 newObject = null;
         }
@@ -331,6 +349,14 @@ export class Canvas extends React.Component {
             finalMousePos: []
         });
     }
+ 
+
+    keyPressed(e) {
+        alert('a key is pressed');
+       // this.setText(e.target.value)
+       //this.state.textToShow = {e};
+    }
+
 
     componentDidUpdate() {
         let canvas = this.canvasRef.current;
@@ -375,6 +401,7 @@ export class Canvas extends React.Component {
         let finalY = state.finalMousePos[1];
 
         switch (state.type) {
+
             case 'square':
                 (new Rectangle(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
                 break;
@@ -387,6 +414,9 @@ export class Canvas extends React.Component {
             case 'draw':
                 (new FreeForm(ctx, state.freeFormPoints)).preview(ctx, state.freeFormPoints);
                 break;
+            case 'text box':
+                (new TextBox(context,  initX, initY, finalX, finalY)).preview(context, this.state.textToShow, initX, initY, finalX, finalY); 
+                break; 
             default:
                 if (state.moving) {
                     state.moving.preview(ctx, initX, initY, finalX, finalY);
@@ -419,6 +449,12 @@ export class Canvas extends React.Component {
     setLine() {
         this.setState({ type: 'line', initMousePos: [], finalMousePos: [] });
     }
+
+    // Unused for now
+    setTextBox() {
+        this.setState({ type: 'text box', initMousePos: [], finalMousePos: [] });
+    }
+   
 
     setFreeForm() {
         this.setState({ type: 'draw', initMousePos: [], finalMousePos: [] });
@@ -566,6 +602,7 @@ export class Canvas extends React.Component {
 
     }
 
+
     render() {
         return (
             <>
@@ -592,10 +629,12 @@ export class Canvas extends React.Component {
                                     {((this.state.type === 'line') && <BsSlashSquareFill />) || <BsSlash />}
                                 </ToggleButton>
 
-                                <ToggleButton title="Text tool" variant='link' type='radio' onClick={e => this.setLine()}>
+
+                                <ToggleButton title="Text tool" variant='link' type='radio' onClick={e => this.setTextBox()}>
                                     {<BsCursorText />}
                                 </ToggleButton>
 
+                               
 
                                 <ToggleButton title="Draw freeform" variant='link' type='radio' onClick={e => this.setFreeForm()}>
                                     {((this.state.type === 'draw') && <BsPencilSquare />) || <BsPencil />}
@@ -672,11 +711,34 @@ export class Canvas extends React.Component {
                             height={this.props.height}
                             onMouseDown={e => this.mouseDown(e)}
                             onMouseMove={e => this.move(e)}
-                            onMouseUp={e => this.mouseUp(e)}
+                            onMouseUp={e => this.mouseUp(e)} 
+                           // onKeyDown={this.keyPressed}
+ 
+
                         ></canvas>
                     </div>
                 </Form.Row>
+
+
+
+                <div style = {{position: "fixed", bottom : 10, padding:10}}>
+                    <input 
+                        type="text"
+                        value={this.state.textToShow} 
+                        //onKeyDown={this.keyPressed}
+
+                        onChange = {(e) => {
+                           // this.keyPressed(e);
+                           //console.log(e.target.value);
+                            this.state.textToShow = e.target.value;
+                        }}
+                    />
+                </div>
+
+                {/* <div onKeyDown={this.keyPressed}></div> */}
             </>
         );
     }
+
+    
 }
