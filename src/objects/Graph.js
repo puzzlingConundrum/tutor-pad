@@ -19,6 +19,7 @@ export class Graph extends Shape {
         } else if (this.functionType === 'cubic') {
             this.coefficients[3] = 1;
         }
+        this.type = 'graph'
     }
 
     draw(context) {

@@ -17,7 +17,7 @@ export default class ReplayButton extends React.Component {
         return (
             <ButtonGroup toggle className={'replay-button' && this.state.playing ? 'replay-button-on' : ''}>
                 <ToggleButton title={this.props.date} className={'replay-toggle-button'} variant='link' type='radio' onDoubleClick={""} onChange={() => {this.props.replaySelect(this.props.num-1);}}>
-                    <p className="replayButtonIcons">{this.props.date}</p>
+                    <p className={'replay-button-icons'}>{this.props.date}</p>
                 </ToggleButton>
                 <ToggleButton title="Get uuid key" className={'replay-toggle-button'} variant='link' type='radio' onChange={() => this.props.saveSelect(this.props.num-1)}>
                     <BiKey size={25} className={'replay-button-icons'}/>

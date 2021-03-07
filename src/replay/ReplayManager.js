@@ -25,7 +25,7 @@ export default class ReplayManager {
 
             let time = String(event.time);
             let stateObject = JSON.stringify(event.state)
-            stringData += time + ":" + stateObject + "\n";
+            stringData += time + "%@%@%@%@%" + stateObject + "@@@@";
         }
 
         return stringData;
@@ -34,13 +34,16 @@ export default class ReplayManager {
     stringToEventArray(text) {
         let eventArray = [];
 
-        let lines = text.split('\n');
+        let lines = text.split('@@@@');
         for (let line of lines) {
-            let parts = line.split(':');
-            let state = JSON.parse(parts[1]);
-            eventArray.push(new CanvasEvent(parts[0], state));
+            let parts = line.split('%@%@%@%@%');
+            if(line != ""){
+                let state = JSON.parse(parts[1]);
+                eventArray.push(new CanvasEvent(parseInt(parts[0]), state, true));
+            }
         }
-        
+
+        console.log(eventArray);
         return eventArray;
     }
 

@@ -1,7 +1,11 @@
 
 export default class CanvasEvent {
-    constructor(startTime, state) {
-        this.time = Date.now() - startTime;
+    constructor(startTime, state, load=false) {
+        if (load) {
+            this.time = startTime;
+        } else {
+            this.time = Date.now() - startTime;
+        }
         this.state = state;
         //console.log(this.time);
     }
