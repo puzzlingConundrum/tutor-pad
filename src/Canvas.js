@@ -324,6 +324,7 @@ export class Canvas extends React.Component {
 
         if (!this.state.isReplaying) {
             this.drawCanvas(context, this.state);
+            // clone state to remove dependencies
             this.eventRecorder.record(clonedeep(this.state));
         }
     }
@@ -345,7 +346,6 @@ export class Canvas extends React.Component {
             console.log(o);
             if (!o)
                 continue;
-
             // when replaying, don't draw bounding boxes
             if ( this.state.isReplaying &&
                 !(o.type !== "bounding box" && (o !== state.moving || o !== state.selected))) {
@@ -355,12 +355,11 @@ export class Canvas extends React.Component {
             o.draw(ctx);
         }
 
-
-
         let initX = state.initMousePos[0];
         let initY = state.initMousePos[1];
         let finalX = state.finalMousePos[0];
         let finalY = state.finalMousePos[1];
+
         switch (state.type) {
             case 'square':
                 (new Rectangle(ctx, initX, initY, finalX, finalY)).preview(ctx, initX, initY, finalX, finalY);
@@ -389,26 +388,6 @@ export class Canvas extends React.Component {
         ctx.clearRect(0, 0, this.props.width, this.props.height);
     }
 
-    // ============ Helper functions=======================
-    /**
-     * 
-     * @param {Object} object Object to clone
-     * @returns A deep cloned object with no references to the original
-     */
-    copy(aObject) {
-        if (!aObject) {
-            return aObject;
-        }
-
-        let v;
-        let bObject = Array.isArray(aObject) ? [] : {};
-        for (const k in aObject) {
-            v = aObject[k];
-            bObject[k] = (typeof v === "object") ? this.copy(v) : v;
-        }
-
-        return bObject;
-    }
 
     // ========================================= On Click Events ============================
     setCursor() {
@@ -473,24 +452,22 @@ export class Canvas extends React.Component {
 
     }
 
-    onReload() {
-
-    }
 
     showReplays() {
         let listItemArray = []
         let i = 1;
 
         for (let replayKey of this.replayManager.getReplayKeys()) {
-            
+
             listItemArray.push(
-            <li><ReplayButton 
-                replaySelect={() => this.selectReplay(i)}
-                saveSelect={() => this.selectSave(i)}
-                downloadSelect={() => this.selectDownload(i)}
-                num={"Replay #" + i}>
+                <li>
+                    <ReplayButton
+                        replaySelect={this.selectReplay.bind(this)}
+                        saveSelect={this.selectSave.bind(this)}
+                        downloadSelect={this.selectDownload.bind(this)}
+                        num={i}>
                     </ReplayButton>
-                    </li>)
+                </li>)
             i++;
         }
 
@@ -498,7 +475,8 @@ export class Canvas extends React.Component {
     }
 
     selectReplay(i) {
-        alert("Test");
+        this.replayIndex = i;
+        //console.log(i)
     }
 
     selectSave(i) {
@@ -587,10 +565,6 @@ export class Canvas extends React.Component {
                                 <ToggleButton variant='link' type='radio' onClick={e => this.doClear()}>{<BiEraser />}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onChange={e => this.setRecording()}>{this.state.isRecording ? <BiVideoRecording color="red" /> : <BiVideoRecording />}</ToggleButton>
                                 <ToggleButton variant='link' type='radio' onChange={e => this.setReplaying()}>{this.state.isReplaying ? <BiPause color="red" /> : <BiPlay />}</ToggleButton>
-
-                                <ToggleButton variant='link' type='radio' onChange={e => this.onReload()}>
-                                    Reload
-                                </ToggleButton>
 
                             </ButtonGroup>
                         </Nav>
