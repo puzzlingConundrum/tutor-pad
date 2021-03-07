@@ -3,9 +3,22 @@ export default class EventPlayer {
         this.eventArray = []; // array of canvasEvents
         this.isReplaying = false;
 
-        this.initMousePos = []
-        this.finalMousePos = []
-        this.type = ''
+        this.length = 0;
+        this.index = 0;
+    }
+
+    /**
+     * Setting the event array also functions as the resetter for the player 
+     * @param {array} eventArray Array of CanvasEvents
+     */
+    set eventArray(eventArray) {
+        this.index = 0;
+        this.length = eventArray.length;
+        this._eventArray = eventArray;
+    }
+
+    get eventArray() {
+        return this._eventArray;
     }
 
     /**
@@ -22,24 +35,24 @@ export default class EventPlayer {
     replay(ms, context) {
         var currentArray = []
         
-        if (this.eventArray.length > 0) {
+        if (this.index < this.length) {
             if (!this.isReplaying)
                 this.isReplaying = true;
 
-            while(this.eventArray[0].time < ms) {
+            while(this.eventArray[this.index].time < ms) {
                 //console.log(this.eventArray[0].time);
 
-                let state = this.eventArray[0].state;
+                let state = this.eventArray[this.index].state;
+                this.index++;
                 currentArray.push(state)
 
-                this.eventArray.shift();
-                
-                if (this.eventArray.length <= 0) {
+                if (this.index >= this.length)
                     break;
-                }
+
             } 
         } else {
             this.isReplaying = false;
+            this.index = 0;
         }
 
         return currentArray;
