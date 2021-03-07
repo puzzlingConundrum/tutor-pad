@@ -4,6 +4,7 @@ export class BoundingBox extends Shape {
     constructor(shape) {
         super(0);
         this.shape = shape;
+        this.type = 'bounding box';
     }
 
     draw(context) {
@@ -17,13 +18,4 @@ export class BoundingBox extends Shape {
         }
     }
 
-    getType() {
-        return "bounding box";
-    }
-}
-
-class AdjustingBox {
-    constructor() {
-
-    }
 }
