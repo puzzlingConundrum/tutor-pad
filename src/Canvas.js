@@ -57,6 +57,7 @@ export class Canvas extends React.Component {
         this.offset = 60;
 
         this.ms = 0;
+        this.startTime = Date.now();
 
         this.eventRecorder = new EventRecorder();
         this.eventPlayer = new EventPlayer();
@@ -65,23 +66,25 @@ export class Canvas extends React.Component {
 
     // ======================== REPLAY FEATURE ====================================
     updateFrame() {
-        this.ms += 4;
+        if (this.state.isReplaying) {
+            this.ms = Date.now() - this.startTime;
 
-        let ctx = this.canvasRef.current.getContext('2d');
+
+            let ctx = this.canvasRef.current.getContext('2d');
 
    
-        let replayTime = this.eventPlayer.getLength();
+            let replayTime = this.eventPlayer.getLength();
 
-        if (this.state.isReplaying) {
+        
             let stateArray = this.eventPlayer.replay(this.ms, ctx);
             for (let state of stateArray)
                 this.drawCanvas(ctx, state);
+
+            if (this.ms > replayTime) {
+                this.setState({isReplaying: this.eventPlayer.isReplaying})
+            }
             
         } 
-
-        if (this.ms > replayTime) {
-            this.setState({isReplaying: this.eventPlayer.isReplaying})
-        }
     }
 
     componentDidMount() {
@@ -294,9 +297,10 @@ export class Canvas extends React.Component {
         let canvas = this.canvasRef.current;
         let context = canvas.getContext('2d');
 
-        this.drawCanvas(context, this.state);
-
-        this.eventRecorder.record(this.state);
+        if (!this.state.isReplaying) {
+            this.drawCanvas(context, this.state);
+            this.eventRecorder.record(this.state);
+        }
     }
 
     // ======================================== DRAW CANVAS ====================================
@@ -394,7 +398,7 @@ export class Canvas extends React.Component {
             this.setState({ isReplaying: true });
             this.eventPlayer = new EventPlayer();
             this.eventPlayer.eventArray = [...this.eventRecorder.eventArray];
-            this.ms = 0;
+            this.startTime = Date.now();
 
         } else {
             // stop recording
