@@ -502,11 +502,26 @@ export class Canvas extends React.Component {
     }
 
     selectSave(i) {
-        
+        console.log(i+" save")
     }
 
     selectDownload(i) {
+        console.log(i+"download")
 
+        //PLACEHOLDER DOWNLOAD TEXT
+        var downloadText = "Mio best girl pog ****************************"
+        //PLACEHOLDER DOWNLOAD TEXT
+
+        const blob = new Blob([downloadText]);
+        const fileDownloadUrl = URL.createObjectURL(blob);
+
+        const hyperlink = document.createElement('a');
+        hyperlink.href = fileDownloadUrl;
+        hyperlink.download="sav.txt"
+
+        document.body.appendChild(hyperlink);
+        hyperlink.click();
+        document.body.removeChild(hyperlink);
     }
 
 
