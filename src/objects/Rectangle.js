@@ -16,8 +16,5 @@ export class Rectangle extends Shape {
         context.closePath();
         context.stroke();
     }
-
-
-
 }
 

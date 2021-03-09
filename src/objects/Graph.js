@@ -83,11 +83,4 @@ export class Graph extends Shape {
         return value;
     }
 
-    set type(value) {
-        this._type = value;
-    }
-
-    get type() {
-        return 'graph';
-    }
 }
