@@ -15,6 +15,10 @@ export class Shape {
     }
 }
 
+export function rgb(r, g, b){
+    return ["rgb(",r,",",g,",",b,")"].join("");
+  }
+
 export function drawShape(ctx, shape, toolType) {
     switch (toolType) {
         case TOOL_TYPE.SHAPE.RECTANGLE:

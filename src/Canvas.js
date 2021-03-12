@@ -3,7 +3,7 @@ import './App.css'
 // Dependencies
 import clonedeep from 'lodash.clonedeep'
 // Shapes
-import { Shape, drawShape } from './objects/Shape'
+import { Shape, drawShape, rgb } from './objects/Shape'
 import { Line } from './objects/Line.js';
 import { BoundingBox } from './objects/BoundingBox.js';
 import { TextBox } from './objects/TextBox.js';
@@ -80,24 +80,20 @@ export class Canvas extends React.Component {
             selectionBox: null,
 
             obj: [],
-            currentObj: null, // array of objects being interacted with, gets cleared every frame
             selectedObj: [],
 
             freeFormPoints: [],
-            
-            textToShow: 'TextToShow',
             
             // Recording
             isRecording: false,
             isReplaying: false,
         };
+        this.currentObj = null; // pointer to object being drawn in state.obj
+        
         this.canvasRef = React.createRef();
-
         this.mouseDistance = [];
 
-        this.currentObj = null;
-
-
+    
         this.canvasRef = React.createRef();
 
         this.startTime = Date.now();
@@ -187,7 +183,7 @@ export class Canvas extends React.Component {
             }
         }
 
-        maxShape = this.obj.splice(max_i, 1)
+        maxShape = this.state.obj.splice(max_i, 1)
         return maxShape;
     }
     //#endregion
@@ -203,11 +199,18 @@ export class Canvas extends React.Component {
         let context = this.getCanvasContext();
 
         const [mouseX, mouseY] = this.getMouseCoords(e);
+
+
+        // Draw shapes
         let object = null;
 
         switch (this.state.toolType) {
             case TOOL_TYPE.SELECT:
+                // Detect selection
                 //object = this.getComponentWithMaxZValue(mouseX, mouseY)
+             
+                const selectionBox = new Shape(mouseX, mouseY, mouseX, mouseY, TOOL_TYPE.SHAPE.RECTANGLE, "rgb(0, 0, 102)", "rgb(181, 178, 208, 0.5)");
+                this.setState({selectionBox: selectionBox});
                 
                 break;
             // Drawing tools
@@ -215,21 +218,32 @@ export class Canvas extends React.Component {
             case TOOL_TYPE.SHAPE.ELLIPSE:
             case TOOL_TYPE.SHAPE.LINE:
                 object = new Shape(mouseX, mouseY, mouseX, mouseY, this.state.toolType)
+                this.currentObj = object;
+                this.setState({
+                    obj: [...this.state.obj, this.currentObj],
+                });
                 break;
             default:
                 break;
         }
-
-        this.currentObj = object;
-        this.setState({
-            obj: [...this.state.obj, this.currentObj],
-        });
     }
 
     mouseMove(e) {
         const [mouseX, mouseY] = this.getMouseCoords(e)
 
+        console.log(this.state.selectionBox)
 
+        // draw selection box 
+        if (this.state.selectionBox) {
+                            
+            let updateObject = this.state.selectionBox;
+            updateObject.finalX = mouseX;
+            updateObject.finalY = mouseY;
+
+            this.setState({})
+        }
+
+        // Draw object
         if (this.currentObj) {
                 
             let updateObject = this.currentObj;
@@ -244,7 +258,7 @@ export class Canvas extends React.Component {
     mouseUp(e) {
 
         this.currentObj = null;
-        this.setState({})
+        this.setState({selectionBox: null})
     }
     //#endregion
 
@@ -277,13 +291,13 @@ export class Canvas extends React.Component {
         ctx.clearRect(0, 0, this.props.width, this.props.height);
 
 
+
         for (const object of state.obj) {
             drawShape(ctx, object, object.type)
         }
 
-        if (state.currentObj) {
-            console.log(state.currentObj)
-            drawShape(ctx, this.state.currentObj, state.currentObj.type)
+        if (state.selectionBox) {
+            drawShape(ctx, state.selectionBox, state.selectionBox.type)
         }
     }
 
