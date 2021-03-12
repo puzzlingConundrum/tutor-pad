@@ -79,6 +79,8 @@ export class Canvas extends React.Component {
 
             obj: [],
             currentObj: null, // array of objects being interacted with, gets cleared every frame
+            selectedObj: [],
+
             freeFormPoints: [],
             
             textToShow: 'TextToShow',
@@ -90,6 +92,8 @@ export class Canvas extends React.Component {
         this.canvasRef = React.createRef();
 
         this.mouseDistance = [];
+
+        this.currentObj = null;
 
 
         this.canvasRef = React.createRef();
@@ -119,7 +123,9 @@ export class Canvas extends React.Component {
              * I don't think playing the entire array does anything, since it'll just replace what was already
              * there within the same frame right? correct me if I'm wrong
              */
+            console.log(stateArray[0])
             this.drawCanvas(stateArray[0]);
+            this.setState({})
 
 
             // Auto-end on last frame 
@@ -170,14 +176,17 @@ export class Canvas extends React.Component {
     }
 
     getComponentWithMaxZValue(mouseX, mouseY) {
+        let max_i = 0;
         let max = 0;
         let maxShape;
-        for (let o of this.state.obj) {
-            if (o.z >= max && this.isInside(mouseX, mouseY, o)) {
-                max = o.z;
-                maxShape = o;
+        for (let i = 0; i < this.state.obj.length; i++) {
+            if (this.state.obj[i].z >= max && this.isInside(mouseX, mouseY, this.state.obj[i].z)) {
+                max = this.state.obj[i].z;
+                max_i = i;
             }
         }
+
+        maxShape = this.obj.splice(max_i, 1)
         return maxShape;
     }
     //#endregion
@@ -192,46 +201,49 @@ export class Canvas extends React.Component {
     mouseDown(e) {
         let context = this.getCanvasContext();
 
-        const [mouseX, mouseY] = this.getMouseCoords(e)
+        const [mouseX, mouseY] = this.getMouseCoords(e);
+        let object = null;
 
         switch (this.state.toolType) {
+            case TOOL_TYPE.SELECT:
+                //object = this.getComponentWithMaxZValue(mouseX, mouseY)
+                
+                break;
+            // Drawing tools
             case TOOL_TYPE.SHAPE.RECTANGLE:
             case TOOL_TYPE.SHAPE.ELLIPSE:
             case TOOL_TYPE.SHAPE.LINE:
-                const object = new Shape(mouseX, mouseY, mouseX, mouseY, this.state.toolType)
-
-                this.setState({currentObj: object})
+                object = new Shape(mouseX, mouseY, mouseX, mouseY, this.state.toolType)
                 break;
             default:
                 break;
         }
+
+        this.currentObj = object;
+        this.setState({
+            obj: [...this.state.obj, this.currentObj],
+        });
     }
 
     mouseMove(e) {
         const [mouseX, mouseY] = this.getMouseCoords(e)
 
-        if (this.state.currentObj) {
+
+        if (this.currentObj) {
                 
-            let updateObject = this.state.currentObj;
+            let updateObject = this.currentObj;
             updateObject.finalX = mouseX;
             updateObject.finalY = mouseY;
 
-            this.setState({
-                currentObj: updateObject
-            })
+            this.setState({})
         }
     }
 
     
     mouseUp(e) {
-        if (this.state.currentObj) {
-            this.setState({
-                obj: [...this.state.obj, this.state.currentObj],
-                currentObj: null,
-            });
-        }
 
-    
+        this.currentObj = null;
+        this.setState({})
     }
     //#endregion
 
@@ -241,7 +253,7 @@ export class Canvas extends React.Component {
         let context = canvas.getContext('2d');
 
         if (!this.state.isReplaying) {
-            this.drawCanvas(context, this.state);
+            this.drawCanvas(this.state);
             // clone state to remove dependencies
             this.eventRecorder.record(clonedeep(this.state));
         }
@@ -259,7 +271,8 @@ export class Canvas extends React.Component {
      * @param {Context} ctx 
      * @param {state} state Takes state as a variable so that recorded states can also be drawn
      */
-    drawCanvas(ctx, state) {
+    drawCanvas(state) {
+        const ctx = this.getCanvasContext();
         ctx.fillStyle = '#000000';
         ctx.clearRect(0, 0, this.props.width, this.props.height);
 
@@ -273,7 +286,6 @@ export class Canvas extends React.Component {
             console.log(this.state.currentObj)
             drawShape(ctx, this.state.currentObj, this.state.currentObj.type)
         }
-        
     }
 
     clearRect(ctx) {
