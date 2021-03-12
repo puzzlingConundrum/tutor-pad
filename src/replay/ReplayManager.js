@@ -37,7 +37,7 @@ export default class ReplayManager {
         let lines = text.split('@@@@');
         for (let line of lines) {
             let parts = line.split('%@%@%@%@%');
-            if(line != ""){
+            if(line !== ""){
                 let state = JSON.parse(parts[1]);
                 eventArray.push(new CanvasEvent(parseInt(parts[0]), state, true));
             }

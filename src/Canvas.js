@@ -77,6 +77,8 @@ export class Canvas extends React.Component {
             toolType: TOOL_TYPE.SELECT,
             mouseAction: MOUSE_ACTION.NONE,
 
+            selectionBox: null,
+
             obj: [],
             currentObj: null, // array of objects being interacted with, gets cleared every frame
             selectedObj: [],
@@ -118,14 +120,13 @@ export class Canvas extends React.Component {
 
             let replayTime = this.eventPlayer.getLength();
 
-            let stateArray = this.eventPlayer.replay(ms, ctx);
+            let stateArray = this.eventPlayer.replay(ms);
             /**
              * I don't think playing the entire array does anything, since it'll just replace what was already
              * there within the same frame right? correct me if I'm wrong
              */
-            console.log(stateArray[0])
-            this.drawCanvas(stateArray[0]);
-            this.setState({})
+            if (stateArray[0])
+                this.drawCanvas(stateArray[0]);
 
 
             // Auto-end on last frame 
@@ -247,20 +248,19 @@ export class Canvas extends React.Component {
     }
     //#endregion
 
-    //#region ======================== DRAW UPDATES =================
+    //#region ======================================== DRAW CANVAS ====================================
     componentDidUpdate() {
         let canvas = this.canvasRef.current;
-        let context = canvas.getContext('2d');
 
         if (!this.state.isReplaying) {
             this.drawCanvas(this.state);
+
             // clone state to remove dependencies
+            console.log(clonedeep(this.state))
             this.eventRecorder.record(clonedeep(this.state));
         }
     }
-    //#endregion
 
-    //#region ======================================== DRAW CANVAS ====================================
     getCanvasContext() {
         return this.canvasRef.current.getContext('2d');
     }
@@ -276,15 +276,14 @@ export class Canvas extends React.Component {
         ctx.fillStyle = '#000000';
         ctx.clearRect(0, 0, this.props.width, this.props.height);
 
-        //console.log(objects)
 
-        for (const object of this.state.obj) {
+        for (const object of state.obj) {
             drawShape(ctx, object, object.type)
         }
 
-        if (this.state.currentObj) {
-            console.log(this.state.currentObj)
-            drawShape(ctx, this.state.currentObj, this.state.currentObj.type)
+        if (state.currentObj) {
+            console.log(state.currentObj)
+            drawShape(ctx, this.state.currentObj, state.currentObj.type)
         }
     }
 
@@ -294,7 +293,7 @@ export class Canvas extends React.Component {
 
     //#endregion
 
-    // ========================================= On Click Events ============================
+    //#region ======================== On Click Events ============================
     // Helper function
     setDrawType(toolType) {
         console.log(toolType);
@@ -325,6 +324,8 @@ export class Canvas extends React.Component {
     setTextBox() {
         this.setState({ type: 'text box', initMousePos: [], finalMousePos: [] });
     }
+
+    //#endregion
 
     //#region ======================== Button functions =================
 

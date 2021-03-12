@@ -26,6 +26,8 @@ export function drawShape(ctx, shape, toolType) {
         case TOOL_TYPE.SHAPE.LINE:
             drawLine(ctx, shape);
             break;
+        default:
+            break;
     }
 }
 

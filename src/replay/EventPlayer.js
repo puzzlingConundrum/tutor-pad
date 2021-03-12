@@ -32,7 +32,7 @@ export default class EventPlayer {
             return 0;
     }
 
-    replay(ms, context) {
+    replay(ms) {
         var currentArray = []
         
         if (this.index < this.length) {
@@ -58,6 +58,4 @@ export default class EventPlayer {
 
         return currentArray;
     }
-
-
 }
